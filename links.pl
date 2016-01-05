@@ -46,12 +46,13 @@ while (defined ($f = readdir $d)) {
   elsif (-e $f) {
     if (@ARGV == 1 && $ARGV[0] eq 'FORCE') {
       (my $bf = $f) =~ s/^\.//;
-      $f .= ".orig";
+      $bf .= ".orig";
       if (-e "$ENV{HOME}/$bf") {
 	die "can't back up $f to $bf";
       }
       warn "managing $f; backup at $ENV{HOME}/$bf";
 local($\) = $/;
+local($!) = '$!'; # hack
 print qq{      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!"};
 print qq{      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!"};
     } else {
