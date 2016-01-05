@@ -1,0 +1,132 @@
+# @@@@ not on Linux console, sigh			# -*- Shell-Script -*-
+case `uname 2>/dev/null`-`tty` in
+Linux-/dev/tty[0-9])
+    ;;
+ULTRIX-*)
+    test -t 0 && test -t 1 && stty new erase \^h
+    ;;
+*)
+    test -t 0 && test -t 1 && stty erase \^h
+    ;;
+esac
+# dash...
+if type builtin >/dev/null 2>&1; then
+    :
+else
+    builtin() {
+	${1+"$@"}
+    }
+fi
+ENV=$HOME/.bashrc export ENV
+#case "x$PATH" in
+#*/.bin/@* | */opt/local/*) ;;
+#*)
+PATH=$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:/usr/X11R6/bin:/usr/dt/bin:/usr/openwin/demo:/usr/andy/etc:/usr/afs/etc:/usr/afsws/etc:/usr/andy/bin:/usr/afs/bin:/usr/afsws/bin:/usr/arla/bin:/opt/SUNWdat/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/X11/bin:/usr/motif/bin:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/bin:$PATH:/usr/games:/usr/local/sbin:/usr/local/gnome/bin:/usr/sbin:/sbin:/usr/bin:/bin export PATH
+eval "`$HOME/.rakudobrew/bin/rakudobrew init -`" # @@@
+#;;
+#esac
+# ugh
+# @@@ nuke aliased cd, precmd etc.?
+# double ugh:  /bin/pwd is somehow getting the logical path on OSX
+if [ "x$(pwd -P 2>&1 >/dev/null)" = x ]; then
+    _pwdp='pwd -P'
+else
+    _pwdp='\pwd'
+fi
+npath=
+oIFS="$IFS"
+IFS=:
+_quietyinz=1
+for dir in $PATH; do
+    IFS="$oIFS"
+    test -d "$dir" || continue
+    dir="$(builtin cd "$dir"; eval "$_pwdp")" || continue
+    case "x$npath" in
+    x"$dir") ;;
+    x"$dir":*) ;;
+    *:"$dir":*) ;;
+    *:"$dir") ;;
+    *) npath=${npath:+"$npath:"}"$dir" ;;
+    esac
+done
+IFS="$oIFS"
+test -n "$npath" && PATH="$npath"
+# hgu
+MANPATH=
+INFOPATH=
+IFS=:
+for dir in $PATH; do
+    IFS="$oIFS"
+    dir="$(dirname "$dir")"
+    if test -d "$dir/share/info"; then
+	INFOPATH="$INFOPATH${INFOPATH:+:}$dir/share/info"
+    fi
+    if test -d "$dir/info"; then
+	INFOPATH="$INFOPATH${INFOPATH:+:}$dir/info"
+    fi
+    if test -d "$dir/share/man"; then
+	MANPATH="$MANPATH${MANPATH:+:}$dir/share/man"
+    fi
+    if test -d "$dir/man"; then
+	MANPATH="$MANPATH${MANPATH:+:}$dir/man"
+    fi
+done
+unset _quietyinz
+IFS="$oIFS"
+export PATH INFOPATH MANPATH
+# @@@@ pathify, prefer pg :: less :: more, prefer mine to system
+if test -f $HOME/.bin/common/more; then
+    PAGER=$HOME/.bin/common/more
+elif test -f $HOME/.bin/more; then
+    PAGER=$HOME/.bin/more
+elif test -f $HOME/bin/more; then
+    PAGER=$HOME/bin/more
+fi
+# @@@@ gack, pmax_ul4 lacks "type".  killkillkill...
+# @@@@ need a path-searcher.  can't use smart one as pmax is a BSD sh and
+# @@@@ therefore terminally braindead.
+if test -f /usr/athena/bin/pagsh; then
+    __my_pagsh=/usr/athena/bin/pagsh
+elif test -f /usr/local/bin/pagsh; then
+    __my_pagsh=/usr/local/bin/pagsh
+elif test -f /usr/afsws/bin/pagsh; then
+    __my_pagsh=/usr/afsws/bin/pagsh
+elif type pagsh >/dev/null 2>&1; then
+    __my_pagsh=pagsh
+else
+    __my_pagsh=$SHELL
+fi
+export __my_pagsh
+if [ "x$BASH" != "x" -a -f .bashrc ]; then . .bashrc; fi
+# @@@@ default needs to be pathified
+# @@@@ this doesn't work in ksh!
+if test -f /opt/local/bin/nvi; then
+    EDITOR=/opt/local/bin/nvi
+elif test -f /usr/local/bin/nvi; then
+    EDITOR=/usr/local/bin/nvi
+elif test -f /usr/local/bin/vi; then
+    EDITOR=/usr/local/bin/vi
+elif test -f /usr/bin/vi; then
+    EDITOR=/usr/bin/vi
+elif test -f /usr/ucb/vi; then
+    EDITOR=/usr/ucb/vi
+fi
+export EDITOR
+export GIT_EDITOR='emacsclient -nw' # @@@
+## @@@@ this should be via wrapper scripts in PATH
+#if [ -d /opt/SmallEiffel ]; then
+#    SmallEiffel=/opt/SmallEiffel export SmallEiffel
+#    PATH=$SmallEiffel/bin:$PATH export PATH
+#fi
+#if test -f "$HOME/.hostalias"; then
+#    HOSTALIASES="$HOME/.hostalias"
+#    export HOSTALIASES
+#fi
+#export ua=/afs/sinenomine.net/user/ballbery
+#export _BSA_KRBAFS_ID=ballbery@SINENOMINE.NET
+if test -f $HOME/.rakudobrew/bin/rakudobrew; then
+    eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
+    p6() {
+	rakudobrew exec perl6 -e "$*"
+    }
+fi
