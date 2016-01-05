@@ -188,7 +188,6 @@ $sh = ($bash ne 'x' ? 'B' : $zsh ne 'x' ? 'Z' : 'B') . ($> ? '$' : '#');
 # @@@ this is more or less useless any more
 #$cmd = $bash eq 'x' ? ':!' : ':\!';
 $cmd = '';
-# git
 $git = '';
 my $gb = `git branch --no-color --list -vv 2>/dev/null`;
 if (defined $gb and $gb ne '' and $gb =~ s/.*\* ([^\n]+).*/$1/s) {
@@ -241,6 +240,9 @@ if (defined $gb and $gb ne '' and $gb =~ s/.*\* ([^\n]+).*/$1/s) {
   }
   if ($gs =~ /^Changes not staged for commit:$/m) {
     $ddd .= '*';
+  }
+  elsif ($gs =~ /^Changes to be committed:$/m) {
+    $ddd .= '≻';
   }
   elsif ($gs =~ /^Untracked files:$/m) {
     $ddd .= '+';
