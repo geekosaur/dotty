@@ -20,7 +20,7 @@ while (defined ($f = readdir $d)) {
   if (! -e "$ENV{HOME}/$f") {
     if (@ARGV) {
       warn "symlink $f\n";
-      symlink "$dir/$f", "$ENV{HOME}/$f";
+      symlink "$dir/$f", "$ENV{HOME}/$f" or die "symlink: $!";
     } else {
       print "would symlink $f\n";
     }
@@ -38,7 +38,7 @@ while (defined ($f = readdir $d)) {
     next OLD if -e $f;
     if (@ARGV) {
       warn "remove $f symlink\n";
-      unlink "$ENV{HOME}/$f";
+      unlink "$ENV{HOME}/$f" or die "unlink: $!";
     } else {
       print "would unlink $f\n";
     }
@@ -51,8 +51,8 @@ while (defined ($f = readdir $d)) {
 	die "can't back up $f to $bf";
       }
       warn "managing $f; backup at $ENV{HOME}/$bf";
-      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf";
-      symlink "$dir$f", "$ENV{HOME}/$f";
+      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!";
+      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!";
     } else {
       print "$f is unmanaged\n";
     }
