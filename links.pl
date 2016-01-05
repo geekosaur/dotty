@@ -52,7 +52,7 @@ while (defined ($f = readdir $d)) {
       }
       warn "managing $f; backup at $ENV{HOME}/$bf";
       rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf";
-      symlink "$dir/$f", "$ENV{HOME}/$f";
+      symlink "$dir$f", "$ENV{HOME}/$f";
     } else {
       print "$f is unmanaged\n";
     }
