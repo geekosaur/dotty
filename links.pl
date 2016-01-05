@@ -50,11 +50,9 @@ while (defined ($f = readdir $d)) {
       if (-e "$ENV{HOME}/$bf") {
 	die "can't back up $f to $bf";
       }
-      warn "managing $f; backup at $ENV{HOME}/$bf";
-local($\) = $/;
-local($!) = '$!'; # hack
-print qq{      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!"};
-print qq{      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!"};
+      warn "managing $f; backup at $ENV{HOME}/$bf\n";
+      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!";
+      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!";
     } else {
       print "$f is unmanaged\n";
     }
