@@ -51,8 +51,9 @@ while (defined ($f = readdir $d)) {
 	die "can't back up $f to $bf";
       }
       warn "managing $f; backup at $ENV{HOME}/$bf";
-      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!";
-      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!";
+local($\) = $/;
+print qq{      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!"};
+print qq{      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!"};
     } else {
       print "$f is unmanaged\n";
     }
