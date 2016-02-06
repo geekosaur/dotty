@@ -1,5 +1,6 @@
 #! /usr/bin/perl
 # NO LONGER compat with perl 4 or embedding! still limited to 5.8+, "thanks" deadrat
+# (still ugly as sin...)
 use 5.008;
 use utf8;
 use strict;
@@ -130,7 +131,8 @@ if ($kp ne '') {
 	$atkt = $un{$atkt};
       } else {
 	my $atkt2;
-	open(PTS, "pts examine $atkt|");
+	# @@@@ may not be local cell! also multiple tokens?
+	open(PTS, "pts examine $atkt 2>/dev/null|");
 	while (defined ($atkt2 = <PTS>)) {
 	  $atkt = $1 if $atkt2 =~ /^Name: (.*), id: \d+, owner: /;
 	}
@@ -425,7 +427,6 @@ sub kanon {
 }
 
 sub kfix {
-#print STDERR "kfix |$NOMINE|$AKA|$uid|\n";
   if ($_[0] =~ m!^(\Q$NOMINE\E|\Q$AKA\E)[./]\Q$uid\E$!) {
     '/';
   }
@@ -443,12 +444,13 @@ sub supsub {
   while ($s ne '') {
     $s =~ s/^(.)//;
     $t .= chr($_[1] + ord($1) - ord('0'));
-    ## @@@ gotta ditch compat...
-    #if ($_[1] == 0x2070) {
-    #  $t .= "\x{e2}\x{81}" . chr(0xb0 + ord($1) - ord('0'));
-    #} else {
-    #  $t .= "\x{e2}\x{82}" . chr(0x80 + ord($1) - ord('0'));
-    #}
+# nemmind, Lib Mono is buggy, switched to Inconsolata
+# (sup 1 is actually sup i, sup 2 and 3 don't exist)
+# @@@ aaaaaaa inconsolata has same bogosity‽ buggy fallback?
+# @@@@ "show only from this font" says yes?
+# @@@@@ all other fonts hosed same way really? think there's a mapping
+#       error somewhere...
+#print STDERR "supsub $_[0] $_[1] @{[ord($1), ord($1) - ord('0')]}\n";
   }
   $t;
 }

@@ -22,7 +22,6 @@ ENV=$HOME/.bashrc export ENV
 #*/.bin/@* | */opt/local/*) ;;
 #*)
 PATH=$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:/usr/X11R6/bin:/usr/dt/bin:/usr/openwin/demo:/usr/andy/etc:/usr/afs/etc:/usr/afsws/etc:/usr/andy/bin:/usr/afs/bin:/usr/afsws/bin:/usr/arla/bin:/opt/SUNWdat/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/X11/bin:/usr/motif/bin:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/bin:$PATH:/usr/games:/usr/local/sbin:/usr/local/gnome/bin:/usr/sbin:/sbin:/usr/bin:/bin export PATH
-eval "`$HOME/.rakudobrew/bin/rakudobrew init -`" # @@@
 #;;
 #esac
 # ugh
@@ -113,20 +112,12 @@ elif test -f /usr/ucb/vi; then
 fi
 export EDITOR
 export GIT_EDITOR='emacsclient -nw' # @@@
-## @@@@ this should be via wrapper scripts in PATH
-#if [ -d /opt/SmallEiffel ]; then
-#    SmallEiffel=/opt/SmallEiffel export SmallEiffel
-#    PATH=$SmallEiffel/bin:$PATH export PATH
-#fi
-#if test -f "$HOME/.hostalias"; then
-#    HOSTALIASES="$HOME/.hostalias"
-#    export HOSTALIASES
-#fi
-#export ua=/afs/sinenomine.net/user/ballbery
-#export _BSA_KRBAFS_ID=ballbery@SINENOMINE.NET
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
-    p6() {
+    6() {
 	rakudobrew exec perl6 -e "$*"
+    }
+    perl6() {
+	rakudobrew exec perl6 "$*"
     }
 fi
