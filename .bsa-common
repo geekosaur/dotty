@@ -114,9 +114,10 @@ export EDITOR
 export GIT_EDITOR='emacsclient -nw' # @@@
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
-    6() {
+    p6() {
 	rakudobrew exec perl6 -e "$*"
     }
+    alias 6=p6
     perl6() {
 	rakudobrew exec perl6 "$*"
     }
