@@ -7,9 +7,54 @@ use strict;
 use warnings;
 # @@@@ should check $LANG and downgrade somewhat sensibly
 binmode(STDOUT, ':utf8');
+binmode(STDERR, ':utf8');
 my $NOMINE = $ENV{LOGNAME} || $ENV{USER} || '<who?>';
 my $AKA = $ENV{_BSA_KRBAFS_ID} || $NOMINE;
 $AKA =~ s/\@.*$//;
+
+# ANSI X3.64
+# yes, I know, Term::AnsiColor etc. etc. this must be standalone
+# and worse, I have to s/// these away for the titlebar...
+my $A_OFF = 0;
+my $A_BRIGHT = 1;
+my $A_DIM = 2;
+my $A_UL = 4;
+my $A_BLINK = 5;
+my $A_REV = 7;
+my $C_FG = 30;
+my $C_BG = 40;
+my $C_BLACK = 0;
+my $C_RED = 1;
+my $C_GREEN = 2;
+my $C_YELLOW = 3;
+my $C_BLUE = 4;
+my $C_MAGENTA = 5;
+my $C_CYAN = 6;
+my $C_WHITE = 7;
+my $C_HI = 8;
+
+sub c {
+  my $s = '';
+  if (defined $_[0]) {
+    $s .= ($_[0] & 7) + $C_FG;
+    $s & $C_HI and $s .= ';' . $A_BRIGHT;
+  }
+  if (defined $_[1]) {
+    $s ne '' and $s .= ';';
+    $s .= ($_[1] & 7) + $C_BG;
+  }
+  if (defined $_[2]) {
+    $s ne '' and $s .= 'm';
+    $s .= $_[2] . "\033[";
+  }
+  "\033[${s}m";
+}
+
+sub stryp {
+  my $s = $_[0];
+  $s =~ s/\033\[[>0-9;]*m//g;
+  $s;
+}
 
 my ($bash, $zsh, $iskrb, $krb, $isafs, $afs, $lvl, $scrn, $host, $dom);
 my ($cell, $tty, $uid, $eid, $kp, $ktkt, $atkt, $sh, $cmd, $git);
@@ -222,38 +267,45 @@ if (defined $gb and $gb ne '' and $gb =~ s/.*\* ([^\n]+).*/$1/s) {
   }
   # also note dirty, unpushed commits
   my $gs = `git status 2>/dev/null`;
+  # @@@ can also be both ahead and behind at the same time!
+  # (e.g. you have un-pushed commits, and you did a fetch)
   if ($gs =~ /^Your branch is (ahead of|behind) '([^']+)' by (\d+) commits?/m) {
     if ($ddd eq '???') {
       # recovery! leaving "origin" as warning
       $ddd = $2;
     }
-    # hm, colors. but that needs to be stripped for titlebar update
+    # colors. but that needs to be stripped for titlebar update (_BSA_TTYSTR1)
     if ($1 eq 'ahead of') {
-      $ddd .= "⁺" . supsub($3, 0x2070);
+      $ddd .= c($C_WHITE|$C_HI, $C_GREEN, "+$3");
     } else {
-      $ddd .= "₋" . supsub($3, 0x2080);
+      $ddd .= c($C_WHITE|$C_HI, $C_RED, "₋$3");
     }
     if ($1 eq 'behind' and $gs !~ /can be fast-forwarded/) {
-      $ddd =~ s/₋/↛/;
+      $ddd =~ s/₋/c($C_YELLOW|$C_HI, $C_MAGENTA, '↛')/e;
     }
   }
+  # @@@ tag direct use of remote branch (or above confusion) fg=red bg=yellow
   elsif ($ddd eq '???' and $gs =~ /^Your branch is up-to-date with '([^']+)'/) {
     $ddd = $1;
   }
   if ($gs =~ /^Changes not staged for commit:$/m) {
-    $ddd .= '*';
+    $ddd .= c($C_CYAN|$C_HI, undef, '*');
   }
   elsif ($gs =~ /^Changes to be committed:$/m) {
-    $ddd .= '≻';
+    $ddd .= c($C_CYAN|$C_HI, undef, '≻');
   }
   elsif ($gs =~ /^Untracked files:$/m) {
-    $ddd .= '+';
+    $ddd .= c($C_CYAN|$C_HI, undef, '+');
   }
   else {
     $ddd .= ':';
   }
+  if ($ddd =~ /^\?\?\?/) {
+    $ddd =~ s//c($C_RED|$C_HI, $C_YELLOW, '???')/e;
+  }
   $git = " «$ddd$gb»";
 }
+#{my $v = $git; $v =~ s/\033/ɮ/g; print STDERR "$v\n";}
 $d = ' [';
 $ENV{HOME} = &kanon($ENV{HOME});
 my $c = 0;
@@ -380,9 +432,10 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
     print TTY "\033]1;", $icon, (exists $ENV{WINDOW} ? "[$ENV{WINDOW}]" : ''), "\007";
     # titlebar
     #print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', $git, $d, "\007";
-    print TTY "\033]2;", $sys, $sn, $uid, $host, ' ', $git, $d, "\007";
+    print TTY "\033]2;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
     # shell
     print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
+    print "_BSA_TTYSTR1=\047", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\047\n";
     print "_BSA_STYSTR=\047", $icon, "\047\n";
     print "_BSA_ITYSTR=\047", $icon, "\047\n";
   } else {
@@ -415,7 +468,7 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
   } else {
     $d =~ s/([\[ ])\$/$1\\\\\$/g;
   }
-  print "unset _BSA_TTYSTR _BSA_STYSTR _BSA_ITYSTR\n";
+  print "unset _BSA_TTYSTR _BSA_STYSTR _BSA_ITYSTR _BSA_TTYSTR1\n";
 }
 print "PS1=\047", $tty, $lvl, $uid, $host, $cmd, $d, $sys, $git, " ", $sh, " \047\n";
 
@@ -436,21 +489,4 @@ sub kfix {
   else {
     $_[0];
   }
-}
-
-sub supsub {
-  my $s = "$_[0]";
-  my $t;
-  while ($s ne '') {
-    $s =~ s/^(.)//;
-    $t .= chr($_[1] + ord($1) - ord('0'));
-# nemmind, Lib Mono is buggy, switched to Inconsolata
-# (sup 1 is actually sup i, sup 2 and 3 don't exist)
-# @@@ aaaaaaa inconsolata has same bogosity‽ buggy fallback?
-# @@@@ "show only from this font" says yes?
-# @@@@@ all other fonts hosed same way really? think there's a mapping
-#       error somewhere...
-#print STDERR "supsub $_[0] $_[1] @{[ord($1), ord($1) - ord('0')]}\n";
-  }
-  $t;
 }
