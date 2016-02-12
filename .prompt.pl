@@ -33,29 +33,6 @@ my $C_CYAN = 6;
 my $C_WHITE = 7;
 my $C_HI = 8;
 
-sub c {
-  my $s = '';
-  if (defined $_[0]) {
-    $s .= ($_[0] & 7) + $C_FG;
-    $s & $C_HI and $s .= ';' . $A_BRIGHT;
-  }
-  if (defined $_[1]) {
-    $s ne '' and $s .= ';';
-    $s .= ($_[1] & 7) + $C_BG;
-  }
-  if (defined $_[2]) {
-    $s ne '' and $s .= 'm';
-    $s .= $_[2] . "\033[";
-  }
-  "\033[${s}m";
-}
-
-sub stryp {
-  my $s = $_[0];
-  $s =~ s/\033\[[>0-9;]*m//g;
-  $s;
-}
-
 my ($bash, $zsh, $iskrb, $krb, $isafs, $afs, $lvl, $scrn, $host, $dom);
 my ($cell, $tty, $uid, $eid, $kp, $ktkt, $atkt, $sh, $cmd, $git);
 my ($d, $sys, $sn, $icon);
@@ -173,15 +150,15 @@ if ($kp ne '') {
       ($atkt = $2) =~ s/^ \(AFS ID //;
       $atkt =~ s/\)$//;
       if (defined $un{$atkt}) {
-	$atkt = $un{$atkt};
+	      $atkt = $un{$atkt};
       } else {
-	my $atkt2;
-	# @@@@ may not be local cell! also multiple tokens?
-	open(PTS, "pts examine $atkt 2>/dev/null|");
-	while (defined ($atkt2 = <PTS>)) {
-	  $atkt = $1 if $atkt2 =~ /^Name: (.*), id: \d+, owner: /;
-	}
-	close(PTS);
+	      my $atkt2;
+	      # @@@@ may not be local cell! also multiple tokens?
+	      open(PTS, "pts examine $atkt 2>/dev/null|");
+	      while (defined ($atkt2 = <PTS>)) {
+	        $atkt = $1 if $atkt2 =~ /^Name: (.*), id: \d+, owner: /;
+	      }
+	      close(PTS);
       }
     }
     elsif ($1 ne '' and $ktkt eq '') {
@@ -193,8 +170,8 @@ if ($kp ne '') {
       # Kerberos ticket which we don't need to see
       my $tmp = kfix($2);
       unless (defined $me{$tmp}) {
-	$ktkt .= ',' . $tmp;
-	$me{$tmp} = 1;
+	      $ktkt .= ',' . $tmp;
+	      $me{$tmp} = 1;
       }
     }
     else {
@@ -324,38 +301,38 @@ foreach (@ARGV) {
     if (m!^/!) {
       my $y;
       foreach my $x (keys %ENV) {
-	next if $x eq 'PWD' or $x eq 'OLDPWD';
-	next unless -d $ENV{$x};
-	($y = &kanon($ENV{$x})) =~ s!([^\w/])!\\$1!g;
-	if (m!^$y((/.*)?)$! and length($y) > length($x)) {
-	  s!!\$$x$1!;
-	  last;
-	}
+	      next if $x eq 'PWD' or $x eq 'OLDPWD';
+	      next unless -d $ENV{$x};
+	      ($y = &kanon($ENV{$x})) =~ s!([^\w/])!\\$1!g;
+	      if (m!^$y((/.*)?)$! and length($y) > length($x)) {
+	        s!!\$$x$1!;
+	        last;
+	      }
       }
       # we want var and one level
       # @@@ remove some useless names
       if (/^\$/) {
-	1 while s!^(\$[^/]+/[^/]+/+)[^/]+/!$1/!;
-	$d .= $sp . $_;
-	next;
+	      1 while s!^(\$[^/]+/[^/]+/+)[^/]+/!$1/!;
+	      $d .= $sp . $_;
+	      next;
       }
     }
     if (m!^/!) {
       my $y;
       foreach my $x (keys %hd) {
-	($y = $x) =~ s!(\W)!\\$1!g;
-	if (m!^$y($|/)!) {
-	  s!!$hd{$x}$1!;
-	  last;
-	}
+	      ($y = $x) =~ s!(\W)!\\$1!g;
+	      if (m!^$y($|/)!) {
+	        s!!$hd{$x}$1!;
+	        last;
+	      }
       }
     }
     if ($_ =~ m!^/(afs|net)/!) {
       s//@/;
       if ($1 eq 'afs') {
-	s!$cell($|/)!$1!o;
+	      s!$cell($|/)!$1!o;
       } else {
-	s!$dom($|/)!$1!o;
+	      s!$dom($|/)!$1!o;
       }
       1 while s!^(@[^/]*/+)[^/]+/!$1/!;
       $d .= $sp . $_;
@@ -441,16 +418,16 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
   } else {
     # titlebar
     if (defined($ENV{TMUX}) and $ENV{TMUX} ne '') {
-	print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', $git, $d, "\007";
+	    print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', $git, $d, "\007";
     } else {
-	print TTY "\033]0;", $sys, $sn, $uid, $host, "[$ENV{WINDOW}] ", $git, $d, "\007";
+	    print TTY "\033]0;", $sys, $sn, $uid, $host, "[$ENV{WINDOW}] ", $git, $d, "\007";
     }
     # window name
     print TTY "\033k", $icon, "\033\\";
     if (defined($ENV{TMUX}) and $ENV{TMUX} ne '') {
-	print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
+	    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
     } else {
-	print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, "[$ENV{WINDOW}] ", $git, $d, "\047\n";
+	    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, "[$ENV{WINDOW}] ", $git, $d, "\047\n";
     }
     print "_BSA_STYSTR=\047", $icon, "\047\n";
     print "_BSA_ITYSTR=\047", $icon, "\047\n";
@@ -489,4 +466,35 @@ sub kfix {
   else {
     $_[0];
   }
+}
+
+sub c {
+  my $s = '';
+  if (defined $_[0]) {
+    $s .= ($_[0] & 7) + $C_FG;
+    $s & $C_HI and $s .= ';' . $A_BRIGHT;
+  }
+  if (defined $_[1]) {
+    $s ne '' and $s .= ';';
+    $s .= ($_[1] & 7) + $C_BG;
+  }
+  if (defined $_[2]) {
+    $s ne '' and $s .= 'm';
+    $s .= $_[2] . "\033[";
+  }
+  if ($zsh ne 'x') {
+    "%{\033[${s}m%}";
+  }
+  elsif ($bash ne 'x') {
+    "\\[\033[${s}m\\]";
+  }
+  else {
+    "\033[${s}m";
+  }
+}
+# @@@@ zsh %{..%} bash \[..\]
+sub stryp {
+  my $s = $_[0];
+  $s =~ s/\033\[[>0-9;]*m//g;
+  $s;
 }
