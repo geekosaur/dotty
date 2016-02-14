@@ -111,14 +111,7 @@ elif test -f /usr/ucb/vi; then
     EDITOR=/usr/ucb/vi
 fi
 export EDITOR
-export GIT_EDITOR='emacsclient -nw' # @@@
+export GIT_EDITOR="$EDITOR"
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
-    p6() {
-	rakudobrew exec perl6 -e "$*"
-    }
-    alias 6=p6
-    perl6() {
-	rakudobrew exec perl6 "$*"
-    }
 fi

@@ -1159,27 +1159,6 @@ else
 fi
 alias fg=_my_fg
 
-## Since I always want this...
-#alias vncviewer='vncviewer -encodings "tight zlibhex hextile"'
-#if [ "x${VNC_VIA_CMD+set}" = x ] && test -f /usr/local/bin/ssh; then
-#    VNC_VIA_CMD='/usr/local/bin/ssh -f -L %L:%H:%R %G sleep 20'
-#    export VNC_VIA_CMD
-#fi
-
-## handy APM check shortcut; requires zsh
-#if [ "x$ZSH_NAME" = x ]; then
-#    :
-#else
-#    function apmt {
-#	typeset t h m s
-#	t=$(apm -t)
-#	h=$(( $t / 3600 ))
-#	m=$(( ($t % 3600) / 60 ))
-#	s=$(( $t % 60 ))
-#	echo "$h:${(l:2::0:)m}:${(l:2::0:)s}"
-#    }
-#fi
-
 ###############################################################################
 # The Dancing Prompt.  Your worst nightmare come to life :-)
 # This harrowing chunk of code arranges for most significant status to end
@@ -1268,39 +1247,6 @@ case "x$-/$TERM" in
     _BSA_DOPROMPT=0
     ;;
 esac
-
-###############################################################################
-# Terminal size swizzling (which may be broken)
-
-#eval `stty -a 2>&1 |
-#      sed -n \
-#	-e 's/.*rows \([0-9][0-9]*\); columns \([0-9][0-9]*\).*/r=\1 c=\2/p' \
-#	-e 's/.*lines \([0-9][0-9]*\); columns \([0-9][0-9]*\).*/r=\1 c=\2/p' \
-#	-e 's/.*rows \([0-9][0-9]*\); cols \([0-9][0-9]*\).*/r=\1 c=\2/p' \
-#	-e 's/.*lines \([0-9][0-9]*\); cols \([0-9][0-9]*\).*/r=\1 c=\2/p'`
-#case "x$r" in
-#x | x0)
-#    stty rows 24 2>/dev/null
-#    export LINES=24
-#    ;;
-#esac
-#case "x$c" in
-#x | x0)
-#    stty columns 80 2>/dev/null
-#    export COLUMNS=80
-#    ;;
-#esac
-#echo "-----"
-#stty -a
-#echo "flags: $-"
-#echo "TERM: $TERM"
-#echo "LINES: $LINES"
-#echo "COLUMNS: $COLUMNS"
-#echo "tty: `tty`"
-#echo "_BSA_DOPROMPT: $_BSA_DOPROMPT"
-#echo "PS1: $PS1"
-#echo "-----"
-#sleep 30
 
 ###############################################################################
 # Final arrangements
@@ -1475,8 +1421,19 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
   }
 fi
 
+# @@@ put this block somewhere sensible
 alias asfix='printf \\e\[\?47l'
 fignore=(.hi)
+# @@@ shell-safe this
+if test -f $HOME/.rakudobrew/bin/rakudobrew; then
+    p6() {
+	rakudobrew exec perl6 -e "$*"
+    }
+    alias 6=p6
+    perl6() {
+	rakudobrew exec perl6 "$*"
+    }
+fi
 
 # from "and continue"
 ;; esac
