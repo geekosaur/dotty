@@ -265,7 +265,11 @@ if (defined $gb and $gb ne '' and $gb =~ s/.*\* ([^\n]+).*/$1/s) {
   elsif ($ddd eq '???' and $gs =~ /^Your branch is up-to-date with '([^']+)'/) {
     $ddd = $1;
   }
-  if ($gs =~ /^Changes not staged for commit:$/m) {
+  # @@@ use color to indicate that other things are going on here too?
+  if ($gs =~ /^Unmerged paths:$/m) {
+    $ddd .= c($C_RED|$C_HI, $C_YELLOW, '#');
+  }
+  elsif ($gs =~ /^Changes not staged for commit:$/m) {
     $ddd .= c($C_CYAN|$C_HI, undef, '*');
   }
   elsif ($gs =~ /^Changes to be committed:$/m) {
@@ -391,8 +395,8 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
     $did = 1;
   }
   elsif ($atkt eq 'admin' or
-	 # real Kerberos
-	 $ktkt =~ m![./](root|[\w-]*admin)$!) {
+	  # real Kerberos
+	  $ktkt =~ m![./](root|[\w-]*admin)$!) {
     $icon .= '@';
     $did = 1;
   }
