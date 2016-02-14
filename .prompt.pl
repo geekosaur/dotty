@@ -408,7 +408,7 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
     # icon
     print TTY "\033]1;", $icon, (exists $ENV{WINDOW} ? "[$ENV{WINDOW}]" : ''), "\007";
     # titlebar
-    #print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', $git, $d, "\007";
+    #print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
     print TTY "\033]2;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
     # shell
     print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
@@ -468,6 +468,18 @@ sub kfix {
   }
 }
 
+sub i {
+  if ($zsh ne 'x') {
+    $_[0] ? '%{' : '%}';
+  }
+  elsif ($bash ne 'x') {
+    $_[0] ? '\[' : '\]';
+  }
+  else {
+    '';
+  }
+}
+
 sub c {
   my $s = '';
   if (defined $_[0]) {
@@ -480,17 +492,9 @@ sub c {
   }
   if (defined $_[2]) {
     $s ne '' and $s .= 'm';
-    $s .= $_[2] . "\033[";
+    $s .= i(0) . $_[2] . i(1) . "\033[";
   }
-  if ($zsh ne 'x') {
-    "%{\033[${s}m%}";
-  }
-  elsif ($bash ne 'x') {
-    "\\[\033[${s}m\\]";
-  }
-  else {
-    "\033[${s}m";
-  }
+  i(1) . "\033[${s}m" . i(0);
 }
 
 sub stryp {
