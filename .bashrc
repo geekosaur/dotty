@@ -691,7 +691,7 @@ case "x${_BSA_DO_KRBAFS:+i}$-" in
             cp "$kcache" "${kcache}_$$"
             kcache="${kcache}_$$"
         fi
-        
+
 	if [ "x$kcache" = x ]; then
 	    :
 	else
@@ -1251,7 +1251,7 @@ case "x$-/$TERM" in
 	    else
 		__s=" <$PSYS>"
 	    fi
-	    PS1="$__lv$(uname -n):! {$__i} [$__cd]$__s $__b$__r " 
+	    PS1="$__lv$(uname -n):! {$__i} [$__cd]$__s $__b$__r "
 	    case "x$PROMPT" in
 	    x)
 		;;
@@ -1370,107 +1370,109 @@ esac
 
 # hack around RH forcing the prompt in /etc, dammit
 if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
-    # gaaaack, zsh in SuSE11 doesn't do precmd right
-    set -A precmd_functions ___my_precmd
-    ___my_precmd() {
-        if [[ "0$_quietyinz" = 01 ]]; then :; else
-	# and still more serious horkage:  the path disappears!
-	if [ "$_BSA_SHHACK" = "" ]; then
-	    _BSA_SHHACK=1
-	    _fixpath
-	    _my_ppt
-	fi
-	if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_STYSTR}" != x ]; then
-	    echo -en "\ek"
-	    echo -n "${_BSA_STYSTR}"
-	    echo -en "\e\\"
-	    _dids=
-	fi
-	if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_TTYSTR}" != x ]; then
-	    if [ "x$STY" = x ]; then
-		#echo -en "\e]0"
-		#echo -n ";$_BSA_TTYSTR"
-		#echo -en "\a\e]2;"
-		echo -en "\e]2;"
-	    else
-		# @@@ hack for Terminal.app:  current directory
-		# (see /etc/bashrc)
-		if [ "x$TERM_PROGRAM" = xApple_Terminal ] &&
-		   test -z "$INSIDE_EMACS"; then
-		    echo -en "\e]7;file://"
-		    echo "x$(uname -n)$PWD" | sed -e 's/^x//' -e 's/ /%20/g'
-		    echo -en "\a"
-		fi
-		echo -en "\e]0;"
+  # gaaaack, zsh in SuSE11 doesn't do precmd right
+  set -A precmd_functions ___my_precmd
+  ___my_precmd() {
+    typeset _dids _didp _s
+    if [[ "0$_quietyinz" = 01 ]]; then
+      :
+    else
+	    # and still more serious horkage:  the path disappears!
+	    if [ "$_BSA_SHHACK" = "" ]; then
+	      _BSA_SHHACK=1
+	      _fixpath
+	      _my_ppt
 	    fi
-	    echo -n "$_BSA_TTYSTR"
-	    echo -en "\a"
-	    _didp=
-	fi
-	if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_ITYSTR}" != x ]; then
-	    echo -en "\e]1;"
-	    echo -n "${_BSA_ITYSTR}"
-	    echo -en "\a"
-	    _dids=
-	fi
-	# argh, SuSE
-	unsetopt autopushd
-	unsetopt pushdtohome
-	unsetopt cdablevars
-	unsetopt correct
-	unsetopt correctall
-        fi # _quietyinz
-    }
-    preexec() {
-        if [[ "0$_quietyinz" = 01 ]]; then :; else
-	typeset _b _s _t
-	if [ "x$_BSA_DOPROMPT" = x1 ] &&
-	   [ "x$_BSA_STYSTR" != x ] &&
-	   [ "x$STY" != x ]; then
-	    _s="$_BSA_STYSTR"
-	    if [ "x$_dids" = x ]; then
-		#_b="`echo \"\$1\" | sed -e 's/ .*$//' -e 's,^.*/,,'`"
-		echo -en "\ek"
-		_t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-		echo -n "${_t%% *}"
-		echo -en "\e\\"
-		_dids=1
+	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_STYSTR}" != x ]; then
+	      echo -en "\ek"
+	      echo -n "${_BSA_STYSTR}"
+	      echo -en "\e\\"
+	      _dids=
 	    fi
-	fi
-	if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_ITYSTR" != x ]; then
-	    _s="$_BSA_ITYSTR"
-	    if [ "x$_dids" = x ]; then
-		#_b="`echo \"\$1\" | sed -e 's/ .*$//' -e 's,^.*/,,'`"
-		echo -en "\e]1;"
-		_t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-		echo -n "${_t%% *}"
-		echo -en "\a"
-		_dids=1
+	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_TTYSTR}" != x ]; then
+        if [ "x$STY" = x ]; then
+          if [ "x$_BSA_TTYSTR1" = x ]; then
+  		      _s="$_BSA_TTYSTR"
+  	      else
+  		      _s="$_BSA_TTYSTR1"
+  	      fi
+		      echo -en "\e]2;"
+	      else
+		      # @@@ hack for Terminal.app:  current directory
+		      # (see /etc/bashrc)
+		      if [ "x$TERM_PROGRAM" = xApple_Terminal ] &&
+		         test -z "$INSIDE_EMACS"; then
+		        echo -en "\e]7;file://"
+		        echo "x$(uname -n)$PWD" | sed -e 's/^x//' -e 's/ /%20/g'
+		        echo -en "\a"
+		      fi
+		      echo -en "\e]0;"
+	      fi
+	      echo -n "$_s"
+	      echo -en "\a"
+	      _didp=
 	    fi
-	fi
-	if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_TTYSTR" != x ]; then
-	    if [ "x$_BSA_TTYSTR1" = x ]; then
-		_s="$_BSA_TTYSTR"
-	    else
-		_s="$_BSA_TTYSTR1"
+	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_ITYSTR}" != x ]; then
+	      echo -en "\e]1;"
+	      echo -n "${_BSA_ITYSTR}"
+	      echo -en "\a"
+	      _dids=
 	    fi
-	    if [ "x$_didp" = x ]; then
-		#_b="`echo \"\$1\" | sed -e 's/ .*$//' -e 's,^.*/,,'`"
-		if [ "x$STY" = x ]; then
-		    echo -en "\e]2;"
-		else
-		    echo -en "\e]0;"
-		fi
-		print -P -n "${_s}: [%D{%m/%d-%H:%M}] "
-		# prefer to split, then join with ';'; zsh don't play that
-		# (the below seems to do so in sufficiently recent zsh)
-		echo -n "${(j:; :V)${(f)2}}"
-		echo -en "\a"
-		_didp=1
+	    # argh, SuSE
+	    unsetopt autopushd
+	    unsetopt pushdtohome
+	    unsetopt cdablevars
+	    unsetopt correct
+	    unsetopt correctall
+    fi # _quietyinz
+  }
+  preexec() {
+    if [[ "0$_quietyinz" = 01 ]]; then
+      :
+    else
+	    typeset _b _s _t
+	    if [ "x$_BSA_DOPROMPT" = x1 ] &&
+	       [ "x$_BSA_STYSTR" != x ] &&
+	       [ "x$STY" != x ]; then
+	      _s="$_BSA_STYSTR"
+	      if [ "x$_dids" = x ]; then
+		      echo -en "\ek"
+		      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
+		      echo -n "${_t%% *}"
+		      echo -en "\e\\"
+		      _dids=1
+	      fi
 	    fi
-	fi
-        fi # _quietyinz
-    }
+	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_ITYSTR" != x ]; then
+	      _s="$_BSA_ITYSTR"
+	      if [ "x$_dids" = x ]; then
+		      echo -en "\e]1;"
+		      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
+		      echo -n "${_t%% *}"
+		      echo -en "\a"
+		      _dids=1
+	      fi
+	    fi
+	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_TTYSTR" != x ]; then
+	      if [ "x$_BSA_TTYSTR1" = x ]; then
+		      _s="$_BSA_TTYSTR"
+	      else
+		      _s="$_BSA_TTYSTR1"
+	      fi
+	      if [ "x$_didp" = x ]; then
+		      if [ "x$STY" = x ]; then
+		        echo -en "\e]2;"
+		      else
+		        echo -en "\e]0;"
+		      fi
+		      print -P -n "${_s}: [%D{%m/%d-%H:%M}] "
+		      echo -n "${(j:; :V)${(f)2}}"
+		      echo -en "\a"
+		      _didp=1
+	      fi
+	    fi
+    fi # _quietyinz
+  }
 fi
 
 alias asfix='printf \\e\[\?47l'
