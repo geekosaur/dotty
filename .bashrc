@@ -1103,6 +1103,24 @@ else
 fi
 alias git=_my_git
 
+# patch wrapper to regen prompt, in case we're in a git repo
+if [ "x$ZSH_NAME" = x ]; then
+    function _my_patch {
+	if patch "$@"; then
+	    _my_ppt
+	    return 0
+	fi
+    }
+else
+    function _my_patch {
+	if patch "${(@)*}"; then
+	    _my_ppt
+	    return 0
+	fi
+    }
+fi
+alias patch=_my_patch
+
 # regen prompt after a kswitch
 if [ "x$ZSH_NAME" = x ]; then
     function _my_kswitch {
@@ -1422,8 +1440,10 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 fi
 
 # @@@ put this block somewhere sensible
-alias asfix='printf \\e\[\?47l'
+#alias asfix='printf \\e\[\?47l'
 fignore=(.hi)
+alias pbcopy='xclip -in -selection CLIPBOARD'
+alias pbpaste='xclip -out -selection CLIPBOARD'
 # @@@ shell-safe this
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     p6() {
@@ -1431,7 +1451,7 @@ if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     }
     alias 6=p6
     perl6() {
-	rakudobrew exec perl6 "$*"
+	rakudobrew exec perl6 ${1+"$@"}
     }
 fi
 

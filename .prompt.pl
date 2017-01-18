@@ -214,7 +214,7 @@ $sh = ($bash ne 'x' ? 'B' : $zsh ne 'x' ? 'Z' : 'B') . ($> ? '$' : '#');
 $cmd = '';
 $git = '';
 my $gb = `git branch --no-color --list -vv 2>/dev/null`;
-if (defined $gb and $gb ne '' and $gb =~ s/.*\* ([^\n]+).*/$1/s) {
+if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   # note untracked branches with ?, detached with &
   # @@@ ! would be better but some shells can't escape it, it seems
   # @@@ see what a tag looks like...
@@ -287,6 +287,26 @@ if (defined $gb and $gb ne '' and $gb =~ s/.*\* ([^\n]+).*/$1/s) {
   $git = " «$ddd$gb»";
 }
 #{my $v = $git; $v =~ s/\033/ɮ/g; print STDERR "$v\n";}
+## cabal/stack sandboxes?
+my @cbl = <*.cabal>;
+if (@cbl == 1) {
+  my $tt = $cbl[0];
+  $tt =~ s/\.cabal$//;
+  $git .= ' ⁅' . c($C_CYAN, undef, $tt);
+  $git .= '⁆';
+}
+elsif (@cbl) {
+  $git .= ' ' . c($C_RED, $C_YELLOW, '⁈');
+}
+if (-f "cabal.sandbox.config" && -d ".cabal-sandbox") {
+  @cbl or $git .= ' ';
+  $git .= c($C_CYAN|$C_HI, undef, 'ɕ');
+}
+elsif (-f "stack.yaml" && -d ".stack-work") { # @@@ only created on first build
+  @cbl or $git .= ' ';
+  $git .= c($C_BLUE, $C_MAGENTA, 'ʂ');
+}
+##
 $d = ' [';
 $ENV{HOME} = &kanon($ENV{HOME});
 my $c = 0;
@@ -408,6 +428,7 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
     $icon .= '/';
   }
   $icon .= $ENV{_BSA_PSYS} if exists $ENV{_BSA_PSYS} and $ENV{_BSA_PSYS} ne '';
+  # @@@ /run/motd.dynamic may indicate that package updates require rebooting 
   if (!$scrn) {
     # icon
     print TTY "\033]1;", $icon, (exists $ENV{WINDOW} ? "[$ENV{WINDOW}]" : ''), "\007";
@@ -503,6 +524,6 @@ sub c {
 
 sub stryp {
   my $s = $_[0];
-  $s =~ s/(\\\[|%{)?\033\[[>0-9;]*m(\\\]|%})?//g;
+  $s =~ s/(\\\[|%\{)?\033\[[>0-9;]*m(\\\]|%\})?//g;
   $s;
 }
