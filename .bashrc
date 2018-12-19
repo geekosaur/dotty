@@ -1429,6 +1429,7 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 		      else
 		        echo -en "\e]0;"
 		      fi
+
 		      print -P -n "${_s}: [%D{%m/%d-%H:%M}] "
 		      echo -n "${(j:; :V)${(f)2}}"
 		      echo -en "\a"
@@ -1444,16 +1445,13 @@ fi
 fignore=(.hi)
 alias pbcopy='xclip -in -selection CLIPBOARD'
 alias pbpaste='xclip -out -selection CLIPBOARD'
+alias nix='. /home/allbery/.nix-profile/etc/profile.d/nix.sh; psys "nix${_BSA_PSYS++$_BSA_PSYS}"'
+gc() { grep -ri "$*" . | grep -Ev '(~:|(^| )\./\.git/)' }
 # @@@ shell-safe this
-if test -f $HOME/.rakudobrew/bin/rakudobrew; then
-    p6() {
-	rakudobrew exec perl6 -e "$*"
-    }
-    alias 6=p6
-    perl6() {
-	rakudobrew exec perl6 ${1+"$@"}
-    }
-fi
+# @@@@ also, unbreak... $p wants globbing
+girc() { local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/ZNC\ \[ttuttle\ ds\]\ -\ FreeNode/$p.log }
+# this is a script now
+#wcc() { wc **/*~(*/h*|*\~)(.) | sort -k ${1-3}nr,${1-3} }
 
 # from "and continue"
 ;; esac

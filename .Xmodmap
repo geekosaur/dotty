@@ -1,2 +1,3 @@
 remove mod1 = Alt_R
 keysym Alt_R = Mode_switch
+keycode 174 = Scroll_Lock NoSymbol Scroll_Lock

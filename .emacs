@@ -14,7 +14,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(colon-double-space t)
+ '(colon-double-space nil)
  '(column-number-mode t)
  '(comment-column 48)
  '(confirm-kill-emacs (quote yes-or-no-p))
@@ -34,6 +34,7 @@
  '(partial-completion-mode t)
  '(save-place t nil (saveplace))
  '(scalable-fonts-allowed t)
+ '(sentence-end-double-space nil)
  '(show-paren-mode t)
  '(size-indication-mode t)
  '(speedbar-frame-parameters (quote ((minibuffer) (width . 30) (border-width . 0) (menu-bar-lines . 0) (tool-bar-lines . 0) (unsplittable . t) (left-fringe . 0))))
@@ -41,7 +42,7 @@
  '(speedbar-hide-button-brackets-flag t)
  '(speedbar-show-unknown-files t)
  '(speedbar-track-mouse-flag t)
- '(text-mode-hook (quote (turn-on-auto-fill text-mode-hook-identify)))
+ '(text-mode-hook (quote (turn-on-flyspell turn-on-auto-fill text-mode-hook-identify)))
  '(tool-bar-mode nil)
  '(tooltip-mode nil)
  '(uniquify-buffer-name-style (quote forward) nil (uniquify))
@@ -51,8 +52,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :family "DejaVu Sans Mono" :foundry "unknown"))))
+ '(default ((t (:inherit nil :stipple nil :background "black" :foreground "grey70" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "unknown" :family "Inconsolata"))))
  '(fixed-pitch ((t (:family "apple-monaco"))))
+ '(linum ((t (:inherit (shadow default) :height 80))))
  '(variable-pitch ((t (:family "arial")))))
 
 (put 'upcase-region 'disabled nil)
@@ -60,6 +62,24 @@
 ; this is probably beyond evil
 (require 'cperl-mode)
 (fset 'perl-mode (symbol-function 'cperl-mode))
+
+;; MELPA
+(require 'package) ;; You might already have this line
+; zap this part if it causes problems
+(defadvice package-compute-transaction
+  (before package-compute-transaction-reverse (package-list requirements) activate compile)
+    "reverse the requirements"
+    (setq requirements (reverse requirements))
+    (print requirements))
+; end zap
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
+  (add-to-list 'package-archives (cons "melpa" url) t))
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+(package-initialize) ;; You might already have this line
 
 ;; these are *nice*
 ;; (will be nicer when I get around to combining them properly)

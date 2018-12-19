@@ -111,7 +111,9 @@ elif test -f /usr/ucb/vi; then
     EDITOR=/usr/ucb/vi
 fi
 export EDITOR
-export GIT_EDITOR="$EDITOR"
+GIT_EDITOR="$EDITOR"
+VISUAL="$EDITOR"
+export GIT_EDITOR VISUAL
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
 fi

@@ -35,7 +35,7 @@ my $C_HI = 8;
 
 my ($bash, $zsh, $iskrb, $krb, $isafs, $afs, $lvl, $scrn, $host, $dom);
 my ($cell, $tty, $uid, $eid, $kp, $ktkt, $atkt, $sh, $cmd, $git);
-my ($d, $sys, $sn, $icon);
+my ($d, $sys, $sn, $icon, $cmt);
 my (%hd, %un);
 $bash = shift;
 $zsh = shift;
@@ -156,7 +156,7 @@ if ($kp ne '') {
 	      # @@@@ may not be local cell! also multiple tokens?
 	      open(PTS, "pts examine $atkt 2>/dev/null|");
 	      while (defined ($atkt2 = <PTS>)) {
-	        $atkt = $1 if $atkt2 =~ /^Name: (.*), id: \d+, owner: /;
+		$atkt = $1 if $atkt2 =~ /^Name: (.*), id: \d+, owner: /;
 	      }
 	      close(PTS);
       }
@@ -213,12 +213,14 @@ $sh = ($bash ne 'x' ? 'B' : $zsh ne 'x' ? 'Z' : 'B') . ($> ? '$' : '#');
 #$cmd = $bash eq 'x' ? ':!' : ':\!';
 $cmd = '';
 $git = '';
+$cmt = '';
 my $gb = `git branch --no-color --list -vv 2>/dev/null`;
 if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   # note untracked branches with ?, detached with &
   # @@@ ! would be better but some shells can't escape it, it seems
   # @@@ see what a tag looks like...
-  $gb =~ s/\s+[0-9a-f]{7}\s+((?:\[[^]]+\]\s)?).*$/$1/;
+  $gb =~ s/\s+([0-9a-f]{7})\s+((?:\[[^]]+\]\s)?).*$/$2/;
+  $cmt = $1;
   $gb =~ s/\[.*\]\s+// or $gb .= '¤';
   $gb =~ s/^\(detached from (\S+)\)/$1‽/;
   # try to find out what repo we're in
@@ -227,7 +229,8 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   chop($ddd = `pwd`);
   while ($ddd ne '') {
     # safety net @@@ git also has envars for this
-    if ($ddd eq '/afs' or $ddd eq '/net') {
+    # @@@ DreamHack?
+    if ($ddd eq '/afs' or $ddd eq '/net' or $ddd eq '/Network') {
       $ddd = '';
       last;
     }
@@ -244,26 +247,34 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   }
   # also note dirty, unpushed commits
   my $gs = `git status 2>/dev/null`;
-  # @@@ can also be both ahead and behind at the same time!
+  if ($gs =~ /^Your branch is up-to-date with '([^']+)'/m) {
+    $cmt = '';
+    # @@@ tag direct use of remote branch (or above confusion) fg=red bg=yellow
+    if ($ddd eq '???') {
+      $ddd = $1;
+    }
+  }
+  # can also be both ahead and behind at the same time!
   # (e.g. you have un-pushed commits, and you did a fetch)
-  if ($gs =~ /^Your branch is (ahead of|behind) '([^']+)' by (\d+) commits?/m) {
+  elsif ($gs =~ /^Your branch is (ahead of|behind) '([^']+)'/m) {
     if ($ddd eq '???') {
       # recovery! leaving "origin" as warning
       $ddd = $2;
     }
     # colors. but that needs to be stripped for titlebar update (_BSA_TTYSTR1)
-    if ($1 eq 'ahead of') {
-      $ddd .= c($C_WHITE|$C_HI, $C_GREEN, "+$3");
-    } else {
-      $ddd .= c($C_WHITE|$C_HI, $C_RED, "₋$3");
+    if ($gs =~ / ahead of '(?:[^']+)' by (\d+) commits?/) {
+      $ddd .= c($C_WHITE|$C_HI, $C_GREEN, "+$1");
     }
-    if ($1 eq 'behind' and $gs !~ /can be fast-forwarded/) {
-      $ddd =~ s/₋/c($C_YELLOW|$C_HI, $C_MAGENTA, '↛')/e;
+    if ($gs =~ / behind '(?:[^']+)' by (\d+) commits?/) {
+      $ddd .= c($C_WHITE|$C_HI, $C_RED, "₋$1");
+      if ($gs !~ /can be fast-forwarded/) {
+	$ddd =~ s/₋/c($C_YELLOW|$C_HI, $C_MAGENTA, '↛')/e;
+      }
     }
   }
-  # @@@ tag direct use of remote branch (or above confusion) fg=red bg=yellow
-  elsif ($ddd eq '???' and $gs =~ /^Your branch is up-to-date with '([^']+)'/) {
-    $ddd = $1;
+  else {
+    # @@@ nfc
+    $ddd = c($C_YELLOW|$C_HI, $C_RED, $ddd);
   }
   # @@@ use color to indicate that other things are going on here too?
   if ($gs =~ /^Unmerged paths:$/m) {
@@ -284,7 +295,10 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   if ($ddd =~ /^\?\?\?/) {
     $ddd =~ s//c($C_RED|$C_HI, $C_YELLOW, '???')/e;
   }
-  $git = " «$ddd$gb»";
+  if ($cmt ne '') {
+    $cmt = '@' . $cmt;
+  }
+  $git = " «$ddd$gb$cmt»";
 }
 #{my $v = $git; $v =~ s/\033/ɮ/g; print STDERR "$v\n";}
 ## cabal/stack sandboxes?
@@ -509,7 +523,7 @@ sub c {
   my $s = '';
   if (defined $_[0]) {
     $s .= ($_[0] & 7) + $C_FG;
-    $s & $C_HI and $s .= ';' . $A_BRIGHT;
+    $_[0] & $C_HI and $s .= ';' . $A_BRIGHT;
   }
   if (defined $_[1]) {
     $s ne '' and $s .= ';';
