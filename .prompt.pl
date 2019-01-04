@@ -247,7 +247,7 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   }
   # also note dirty, unpushed commits
   my $gs = `git status 2>/dev/null`;
-  if ($gs =~ /^Your branch is up-to-date with '([^']+)'/m) {
+  if ($gs =~ /^Your branch is up[- ]to[- ]date with '([^']+)'/m) {
     $cmt = '';
     # @@@ tag direct use of remote branch (or above confusion) fg=red bg=yellow
     if ($ddd eq '???') {
