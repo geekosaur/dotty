@@ -219,10 +219,15 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   # note untracked branches with ?, detached with &
   # @@@ ! would be better but some shells can't escape it, it seems
   # @@@ see what a tag looks like...
-  $gb =~ s/\s+([0-9a-f]{7})\s+((?:\[[^]]+\]\s)?).*$/$2/;
+#open my $dbgfh, '>', '/tmp/zzzxxx' or die;
+#print $dbgfh "gb1 |$gb|\n";
+  $gb =~ s/\s+([0-9a-f]{7,15})\s+((?:\[[^]]+\]\s)?).*$/$2/;
+#print $dbgfh "gb2 |$gb|\n";
   $cmt = $1;
   $gb =~ s/\[.*\]\s+// or $gb .= '¤';
+#print $dbgfh "gb3 |$gb|\n";
   $gb =~ s/^\(detached from (\S+)\)/$1‽/;
+#print $dbgfh "gb4 |$gb|\n";
   # try to find out what repo we're in
   # not asking git first because we want the *local* name if possible
   my $ddd;
