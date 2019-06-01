@@ -35,8 +35,13 @@ my $C_HI = 8;
 
 my ($bash, $zsh, $iskrb, $krb, $isafs, $afs, $lvl, $scrn, $host, $dom);
 my ($cell, $tty, $uid, $eid, $kp, $ktkt, $atkt, $sh, $cmd, $git);
-my ($d, $sys, $sn, $icon, $cmt);
+my ($d, $sys, $sn, $icon, $cmt, $q);
 my (%hd, %un);
+$q = 0;
+if ($ARGV[0] eq '-q') {
+  $q = 1;
+  shift;
+}
 $bash = shift;
 $zsh = shift;
 $iskrb = shift;
@@ -412,7 +417,12 @@ if (!defined($sn) or $sn eq 'Error detecting AFS') {
 }
 $icon = '';
 if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?colors?)?$/)) {
-  open(TTY, '> /dev/tty');
+  if ($q) {
+    open(TTY, '> /dev/null'); # ick
+  }
+  else {
+    open(TTY, '> /dev/tty');
+  }
   # @@@ see at top re LANG
   binmode(TTY, ':utf8');
   # icon name
@@ -454,6 +464,7 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
     # titlebar
     #print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
     print TTY "\033]2;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
+    #print TTY "\033]3;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
     # shell
     print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
     print "_BSA_TTYSTR1=\047", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\047\n";

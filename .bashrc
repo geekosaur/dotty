@@ -1,10 +1,12 @@
 :
+_BSA_INPPT=1 # ugly haaaaaack
+# @@@ which will break if used in a shell without ${var/str}
 
 # X11.app braindamage hackaround
 case "x`uname`+$-" in
 xDarwin+*i*)
     type stty >/dev/null 2>&1 || PATH=/usr/bin:/bin # @@@ wtf?
-    test -t 1 && stty erase '^?' || set +i
+    test -t 1 && stty erase '^?' 2>/dev/null || set +i
     ;;
 esac
 
@@ -220,6 +222,7 @@ x2.01*)
     ;;
 *)
     go=1
+    ;;
 esac
 if [ "x$KCLEANUP" = x0 ]; then
     go=0
@@ -849,7 +852,7 @@ for cmd in klog unlog kinit kauth kdestroy aklog cklog afslog xkme; do
     eval "_my_${cmd}_cmd=\$_my_$cmd
 	  _my_$cmd() {
 	      if "\$_my_${cmd}_cmd \$_my_${cmd}_args" $args; then
-		  _my_ppt
+		  _my_ppt -q
 		  return 0
 	      fi
 	  }
@@ -878,7 +881,7 @@ for cmd in rlogin telnet pagsh; do
 		  "\$_my_${cmd}_cmd" $args
 		  rc=\$?
 		  [ "x\$ZSH_NAME" != x ] && [ "x\$HISTFILE" != x ] && fc -R "\$HISTFILE"
-		  _my_ppt
+		  _my_ppt -q
 		  return \$?
 	      }
 	      alias $cmd=_my_$cmd"
@@ -894,7 +897,7 @@ for cmd in trn vi vim nvi; do
 		  typeset rc
 		  "\$_my_${cmd}_cmd" $args
 		  rc=\$?
-		  _my_ppt
+		  _my_ppt -q
 		  return \$?
 	      }
 	      alias $cmd=_my_$cmd"
@@ -910,7 +913,7 @@ for cmd in ssh sudo; do
 		  "\$_my_${cmd}_cmd" $args
 		  rc=\$?
 		  [ "x\$ZSH_NAME" != x ] && [ "x\$HISTFILE" != x ] && fc -R "\$HISTFILE"
-		  _my_ppt
+		  _my_ppt -q
 		  return \$?
 	      }
 	      alias $cmd=_my_$cmd"
@@ -918,35 +921,49 @@ for cmd in ssh sudo; do
 done
 unset cmd
 
-# wrapper for nvi, which tweaks xterm's status line
 if type nvi >/dev/null 2>&1; then
     alias vi=nvi
 fi
 
 # add a label to the prompt
 psys() {
+    _BSA_INPPT=${_BSA_INPPT}1
     export _BSA_PSYS="$1"
-    _my_ppt
+    _my_ppt -q
+    # @@@ until next run, bodge it onto the ttystrs
+    case "x$_BSA_TTYSTR" in
+    *"‹"*)
+	_BSA_TTYSTR="$(echo "$_BSA_TTYSTR" | sed "s/‹[^›]*›/‹$_BSA_PSYS›/")"
+	_BSA_TTYSTR1="$(echo "$_BSA_TTYSTR1" | sed "s/‹[^›]*›/‹$_BSA_PSYS›/")"
+	;;
+    *)
+	typeset _p
+	_p="$(echo "$_BSA_PSYS" | sed 's,/,//,g')"
+	_BSA_TTYSTR="$(echo "$_BSA_TTYSTR" | sed "s/^\\([^ ]* \\)/\\1‹$_p›/")"
+	_BSA_TTYSTR1="$(echo "$_BSA_TTYSTR1" | sed "s/^\\([^ ]* \\)/\\1‹$_p›/")"
+	;;
+    esac
+    _BSA_INPPT=${_BSA_INPPT/1}
 }
 
 # pushd/popd, wrappers for bash, implementations for ksh
 if [ "x$BASH" != x ]; then
     # intercept simply to force prompt-fixing
     _my_pushd() {
-	pushd "$@" && _my_ppt
+	pushd "$@" && _my_ppt -q
     }
     _my_popd() {
-	popd "$@" && _my_ppt
+	popd "$@" && _my_ppt -q
     }
     alias pushd=_my_pushd
     alias popd=_my_popd
 elif [ "x$ZSH_NAME" != x ]; then
     # intercept simply to force prompt-fixing
     _my_pushd() {
-	pushd "${(@)*}" && _my_ppt
+	pushd "${(@)*}" && _my_ppt -q
     }
     _my_popd() {
-	popd "${(@)*}" && _my_ppt
+	popd "${(@)*}" && _my_ppt -q
     }
     alias pushd=_my_pushd
     alias popd=_my_popd
@@ -979,7 +996,7 @@ else
 	    __cwd[0]="$__p"
 	fi
 	dirs
-	_my_ppt
+	_my_ppt -q
     }
 
     popd() {
@@ -1024,7 +1041,7 @@ else
 	    __d=$(($__d+1))
 	done
 	dirs
-	_my_ppt
+	_my_ppt -q
     }
 
     dirs() {
@@ -1061,7 +1078,7 @@ if type su > /dev/null 2>&1; then
 	      "\$_my_su_cmd" $args
 	      rc=\$?
 	      [ "x\$ZSH_NAME" != x ] && [ "x\$HISTFILE" != x ] && fc -R "\$HISTFILE"
-	      _my_ppt
+	      _my_ppt -q
 	      return \$?
 	  }"
     alias su=_my_su
@@ -1071,14 +1088,14 @@ fi
 if [ "x$ZSH_NAME" = x ]; then
     function _my_cd {
 	if cd "$@"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
 else
     function _my_cd {
 	if cd "${(@)*}"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
@@ -1089,14 +1106,14 @@ alias cd=_my_cd
 if [ "x$ZSH_NAME" = x ]; then
     function _my_git {
 	if git "$@"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
 else
     function _my_git {
 	if git "${(@)*}"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
@@ -1107,14 +1124,14 @@ alias git=_my_git
 if [ "x$ZSH_NAME" = x ]; then
     function _my_patch {
 	if patch "$@"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
 else
     function _my_patch {
 	if patch "${(@)*}"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
@@ -1125,14 +1142,14 @@ alias patch=_my_patch
 if [ "x$ZSH_NAME" = x ]; then
     function _my_kswitch {
 	if kswitch "$@"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
 else
     function _my_kswitch {
 	if kswitch "${(@)*}"; then
-	    _my_ppt
+	    _my_ppt -q
 	    return 0
 	fi
     }
@@ -1146,7 +1163,7 @@ if [ "x$BASH" != x ]; then
 	typeset rc
 	builtin fg "$@"
 	rc=$?
-	_my_ppt
+	_my_ppt -q
 	return $?
     }
 elif [ "x$ZSH_NAME" != x ]; then
@@ -1154,7 +1171,7 @@ elif [ "x$ZSH_NAME" != x ]; then
 	typeset rc
 	builtin fg "${(@)*}"
 	rc=$?
-	_my_ppt
+	_my_ppt -q
 	return $?
     }
 elif (command echo) >/dev/null 2>&1; then
@@ -1162,7 +1179,7 @@ elif (command echo) >/dev/null 2>&1; then
 	typeset rc
 	command fg ${1+"$@"}
 	rc=$?
-	_my_ppt
+	_my_ppt -q
 	return $?
     }
 else
@@ -1171,7 +1188,7 @@ else
 	typeset rc
 	'fg' ${1+"$@"}
 	rc=$?
-	_my_ppt
+	_my_ppt -q
 	return $?
     }
 fi
@@ -1198,12 +1215,22 @@ case "x$-/$TERM" in
 *i*)
     if type /usr/bin/perl > /dev/null 2>&1; then
 	function _my_ppt {
+	    _BSA_INPPT=${_BSA_INPPT}1
             [[ "x$TERM_PROGRAM" == xApple_Terminal ]] && printf '\e]7;%s\a' "file://$HOSTNAME${PWD// /%20}"
-	    eval "$(/usr/bin/perl $HOME/.prompt.pl x$BASH x$ZSH_NAME $krb x$_my_klist x$afs "x$_my_tokens" $(dirs))"
+	    typeset _p
+	    # may go away, FPTN hack may be fixed
+	    if [ "x$1" = x-q ]; then
+		_p=-q
+	    fi
+	    eval "$(/usr/bin/perl $HOME/.prompt.pl $_p x$BASH x$ZSH_NAME $krb x$_my_klist x$afs "x$_my_tokens" $(dirs))"
+	    _BSA_INPPT=${_BSA_INPPT/1}
 	}
     else
 	unset _BSA_TTYSTR
 	function _my_ppt {
+	    _BSA_INPPT=${_BSA_INPPT}1
+	    # @@@ support -q as above
+	    if [ "x$BSA_INPPT" = x11 ]; then echo huh; return 0; fi
             [[ "x$TERM_PROGRAM" == xApple_Terminal ]] && printf '\e]7;%s\a' "file://$HOSTNAME${PWD// /%20}"
 	    typeset __i __lv __cd __d __ct __s __r __b
 	    typeset -i __c
@@ -1256,6 +1283,7 @@ case "x$-/$TERM" in
 		PROMPT="$PS1"
 		;;
 	    esac
+	    _BSA_INPPT=${_BSA_INPPT/1}
 	}
     fi
     _BSA_DOPROMPT=1
@@ -1337,8 +1365,9 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
   # gaaaack, zsh in SuSE11 doesn't do precmd right
   set -A precmd_functions ___my_precmd
   ___my_precmd() {
+    _BSA_INPPT=1
     typeset _dids _didp _s
-    if [[ "0$_quietyinz" = 01 ]]; then
+    if [[ "0$_quietyinz" = 01 ]] || [ "x$PS1" = x ]; then
       :
     else
 	    # and still more serious horkage:  the path disappears!
@@ -1346,6 +1375,7 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	      _BSA_SHHACK=1
 	      _fixpath
 	      _my_ppt
+#	      _BSA_FPTN=
 	    fi
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_STYSTR}" != x ]; then
 	      echo -en "\ek"
@@ -1354,13 +1384,21 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	      _dids=
 	    fi
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_TTYSTR}" != x ]; then
+		#
+		# @@@@@ urrgh
+		#       so this avoids zsh using precmd inside longer commands
+		#       (apparently it considers showing the prompt at ";")
+		#       but then loses if it's the only command. wtf.
+		if [ "x$_BSA_FPTN" = x1 ]; then
+		    _BSA_FPTN=
+		else
         if [ "x$STY" = x ]; then
-          if [ "x$_BSA_TTYSTR1" = x ]; then
+              if [ "x$_BSA_TTYSTR1" = x ]; then
   		      _s="$_BSA_TTYSTR"
   	      else
   		      _s="$_BSA_TTYSTR1"
   	      fi
-		      echo -en "\e]2;"
+	      echo -en "\e]2;"
 	      else
 		      # @@@ hack for Terminal.app:  current directory
 		      # (see /etc/bashrc)
@@ -1382,6 +1420,7 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	      echo -en "\a"
 	      _dids=
 	    fi
+	    fi # FPTN
 	    # argh, SuSE
 	    unsetopt autopushd
 	    unsetopt pushdtohome
@@ -1399,59 +1438,103 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	       [ "x$_BSA_STYSTR" != x ] &&
 	       [ "x$STY" != x ]; then
 	      _s="$_BSA_STYSTR"
-	      if [ "x$_dids" = x ]; then
-		      echo -en "\ek"
-		      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-		      echo -n "${_t%% *}"
-		      echo -en "\e\\"
-		      _dids=1
-	      fi
+	      echo -en "\ek"
+	      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
+	      echo -n "${_t%% *}"
+	      echo -en "\e\\"
 	    fi
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_ITYSTR" != x ]; then
 	      _s="$_BSA_ITYSTR"
-	      if [ "x$_dids" = x ]; then
-		      echo -en "\e]1;"
-		      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-		      echo -n "${_t%% *}"
-		      echo -en "\a"
-		      _dids=1
-	      fi
+	      echo -en "\e]1;"
+	      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
+	      echo -n "$_s [${_t%% *}]"
+	      echo -en "\a"
 	    fi
+	    if false; then
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_TTYSTR" != x ]; then
 	      if [ "x$_BSA_TTYSTR1" = x ]; then
 		      _s="$_BSA_TTYSTR"
 	      else
 		      _s="$_BSA_TTYSTR1"
 	      fi
-	      if [ "x$_didp" = x ]; then
-		      if [ "x$STY" = x ]; then
-		        echo -en "\e]2;"
-		      else
-		        echo -en "\e]0;"
-		      fi
-
-		      print -P -n "${_s}: [%D{%m/%d-%H:%M}] "
-		      echo -n "${(j:; :V)${(f)2}}"
-		      echo -en "\a"
-		      _didp=1
+	      # ick
+	      if [ "x$STY" = x ]; then
+	        echo -en "\e]2;"
+	      else
+	        echo -en "\e]0;"
 	      fi
+	      print -P -n "[%D{%m/%d-%H:%M}] ${_s}: "
+	      echo -n "${(j:; :V)${(f)2}}"
+	      echo -en "\a"
 	    fi
+	    fi
+	    _BSA_INPPT=
     fi # _quietyinz
   }
+
+  # turns out I actually want SIGDEBUG. hopefully.
+  if {
+      case "x$-" in *i*) [ "0$_quietyinz" = 01 ];; *) false;; esac
+     }; then
+      :
+  else
+      __BSA_DEBUG() {
+	  if [ "x$_BSA_INPPT" = "x" ] &&
+	     [ "x$_BSA_DOPROMPT" = x1 ] &&
+	     [ "x$_BSA_ITYSTR" != x ]; then
+	  _s="$_BSA_ITYSTR"
+	  echo -en "\e]1;"
+	  _t="$(echo "$ZSH_DEBUG_CMD" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
+	  echo -n "$_s [${_t%% *}]"
+	  echo -en "\a"
+	fi
+    if [ "x$_BSA_INPPT" = x ] &&
+       [ "x$_BSA_DOPROMPT" = x1 ] &&
+       [ "x$_BSA_TTYSTR" != x ]; then
+	      typeset _p _s
+	      if [ "x$_BSA_TTYSTR1" = x ]; then
+		      _s="$_BSA_TTYSTR"
+	      else
+		      _s="$_BSA_TTYSTR1"
+	      fi
+	      # ick
+	      if [ "x$STY" = x ]; then
+	        echo -en "\e]2;"
+	      else
+	        echo -en "\e]0;"
+	      fi
+	      print -P -n "[%D{%m/%d-%H:%M}]${_p} ${_s}: "
+	      echo -n "${(j:; :V)${(f)2}}"
+	      echo -en "\a"
+	    fi
+      }
+      trap __BSA_DEBUG DEBUG
+      
+  fi
+      
 fi
 
+if [ "x$ZSH_NAME" = x ]; then
+  :
+else
+ 
 # @@@ put this block somewhere sensible
 #alias asfix='printf \\e\[\?47l'
-fignore=(.hi)
+eval 'fignore=(.hi)'
 alias pbcopy='xclip -in -selection CLIPBOARD'
 alias pbpaste='xclip -out -selection CLIPBOARD'
 alias nix='. /home/allbery/.nix-profile/etc/profile.d/nix.sh; psys "nix${_BSA_PSYS++$_BSA_PSYS}"'
-gc() { grep -ri "$*" . | grep -Ev '(~:|(^| )\./\.git/)' }
+gc() {
+    grep -ri "$*" . | grep -Ev '(~:|(^| )\./\.git/)'
+}
 # @@@ shell-safe this
 # @@@@ also, unbreak... $p wants globbing
-girc() { local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/ZNC\ \[ttuttle\ ds\]\ -\ FreeNode/$p.log }
-# this is a script now
-#wcc() { wc **/*~(*/h*|*\~)(.) | sort -k ${1-3}nr,${1-3} }
+eval 'girc() {
+        local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/ZNC\ \[ttuttle\ ds\]\ -\ FreeNode/$p.log
+      }'
+
+fi
 
 # from "and continue"
-;; esac
+;;
+esac
