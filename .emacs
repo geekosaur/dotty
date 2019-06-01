@@ -9,6 +9,7 @@
 ;(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 ;(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 ;(add-to-list 'auto-mode-alist '("\\.mdwn\\'" . markdown-mode))
+(require 'package) ;; You might already have this line
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -31,6 +32,10 @@
  '(inhibit-startup-screen t)
  '(initial-scratch-message nil)
  '(iswitchb-mode t)
+ '(package-archives
+   (quote
+    (("gnu" . "http://elpa.gnu.org/packages/")
+     ("melpa-stable" . "http://stable.melpa.org/packages/"))))
  '(package-selected-packages (quote (haskell-mode)))
  '(partial-completion-mode t)
  '(save-place t nil (saveplace))
@@ -60,6 +65,7 @@
  '(tooltip-mode nil)
  '(uniquify-buffer-name-style (quote forward) nil (uniquify))
  '(visible-cursor t))
+(package-initialize) ;; You might already have this line
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -69,6 +75,7 @@
  '(cursor ((t (:background "gainsboro"))))
  '(fixed-pitch ((t (:family "apple-monaco"))))
  '(linum ((t (:inherit (shadow default) :height 80))))
+ '(mode-line ((t (:background "grey75" :foreground "#1a1a1a" :box (:line-width -1 :style released-button)))))
  '(variable-pitch ((t (:family "arial")))))
 
 (put 'upcase-region 'disabled nil)
@@ -76,24 +83,6 @@
 ; this is probably beyond evil
 (require 'cperl-mode)
 (fset 'perl-mode (symbol-function 'cperl-mode))
-
-;; MELPA
-(require 'package) ;; You might already have this line
-;; zap this part if it causes problems
-;;(defadvice package-compute-transaction
-;;  (before package-compute-transaction-reverse (package-list requirements) activate compile)
-;;    "reverse the requirements"
-;;    (setq requirements (reverse requirements))
-;;    (print requirements))
-;;; end zap
-(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                    (not (gnutls-available-p))))
-       (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
-  (add-to-list 'package-archives (cons "melpa" url) t))
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-(package-initialize) ;; You might already have this line
 
 ;; these are *nice*
 ;; (will be nicer when I get around to combining them properly)
