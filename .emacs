@@ -71,8 +71,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "black" :foreground "grey70" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "ADBO" :family "Source Code Pro for Powerline"))))
- '(cursor ((t (:background "gainsboro"))))
+ '(default ((t (:inherit nil :stipple nil :background "black" :foreground "grey70" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight semi-bold :height 90 :width normal :family "Source Code Variable" :foundry "ADBO"))))
+ '(cursor ((t (:background "light gray"))))
  '(fixed-pitch ((t (:family "apple-monaco"))))
  '(linum ((t (:inherit (shadow default) :height 80))))
  '(mode-line ((t (:background "grey75" :foreground "#1a1a1a" :box (:line-width -1 :style released-button)))))
