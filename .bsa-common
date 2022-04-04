@@ -1,4 +1,5 @@
 # @@@@ not on Linux console, sigh			# -*- Shell-Script -*-
+_BSA_INPPT=1
 case `uname 2>/dev/null`-`tty` in
 Linux-/dev/tty[0-9])
     ;;
@@ -21,7 +22,16 @@ ENV=$HOME/.bashrc export ENV
 #case "x$PATH" in
 #*/.bin/@* | */opt/local/*) ;;
 #*)
-PATH=$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:/usr/X11R6/bin:/usr/dt/bin:/usr/openwin/demo:/usr/andy/etc:/usr/afs/etc:/usr/afsws/etc:/usr/andy/bin:/usr/afs/bin:/usr/afsws/bin:/usr/arla/bin:/opt/SUNWdat/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/X11/bin:/usr/motif/bin:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/bin:$PATH:/usr/games:/usr/local/sbin:/usr/local/gnome/bin:/usr/sbin:/sbin:/usr/bin:/bin export PATH
+nPATH="$HOME/.ghcup/bin:$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:"
+nPATH="$nPATH:$HOME/.cabal/bin:"
+nPATH="$nPATH:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:"
+nPATH="$nPATH:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:"
+nPATH="$nPATH:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:"
+nPATH="$nPATH:/usr/X11R6/bin:/usr/dt/bin:/usr/openwin/demo:/usr/andy/etc:/usr/afs/etc:"
+nPATH="$nPATH:/usr/afsws/etc:/usr/andy/bin:/usr/afs/bin:/usr/afsws/bin:/usr/arla/bin:"
+nPATH="$nPATH:/opt/SUNWdat/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/X11/bin:/usr/motif/bin:"
+nPATH="$nPATH:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/bin:$PATH:/usr/games:"
+nPATH="$nPATH:/usr/local/sbin:/usr/local/gnome/bin:/usr/sbin:/sbin:/usr/bin:/bin:/snap/bin"
 #;;
 #esac
 # ugh
@@ -36,7 +46,7 @@ npath=
 oIFS="$IFS"
 IFS=:
 _quietyinz=1
-for dir in $PATH; do
+for dir in $nPATH; do
     IFS="$oIFS"
     test -d "$dir" || continue
     dir="$(builtin cd "$dir"; eval "$_pwdp")" || continue
@@ -50,6 +60,7 @@ for dir in $PATH; do
 done
 IFS="$oIFS"
 test -n "$npath" && PATH="$npath"
+unset npath nPATH
 # hgu
 MANPATH=
 INFOPATH=
@@ -117,3 +128,4 @@ export GIT_EDITOR VISUAL
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
 fi
+_BSA_INPPT=

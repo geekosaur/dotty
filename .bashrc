@@ -1378,9 +1378,9 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 #	      _BSA_FPTN=
 	    fi
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_STYSTR}" != x ]; then
-	      echo -en "\ek"
-	      echo -n "${_BSA_STYSTR}"
-	      echo -en "\e\\"
+	      echo -en "\ek" >/dev/tty
+	      echo -n "${_BSA_STYSTR}" >/dev/tty
+	      echo -en "\e\\" >/dev/tty
 	      _dids=
 	    fi
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_TTYSTR}" != x ]; then
@@ -1398,26 +1398,26 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
   	      else
   		      _s="$_BSA_TTYSTR1"
   	      fi
-	      echo -en "\e]2;"
+	      echo -en "\e]2;" >/dev/tty
 	      else
 		      # @@@ hack for Terminal.app:  current directory
 		      # (see /etc/bashrc)
 		      if [ "x$TERM_PROGRAM" = xApple_Terminal ] &&
 		         test -z "$INSIDE_EMACS"; then
-		        echo -en "\e]7;file://"
-		        echo "x$(uname -n)$PWD" | sed -e 's/^x//' -e 's/ /%20/g'
-		        echo -en "\a"
+		        echo -en "\e]7;file://" >/dev/tty
+		        echo "x$(uname -n)$PWD" | sed -e 's/^x//' -e 's/ /%20/g' >/dev/tty
+		        echo -en "\a" >/dev/tty
 		      fi
-		      echo -en "\e]0;"
+		      echo -en "\e]0;" >/dev/tty
 	      fi
-	      echo -n "$_s"
-	      echo -en "\a"
+	      echo -n "$_s" >/dev/tty
+	      echo -en "\a" >/dev/tty
 	      _didp=
 	    fi
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x${_BSA_ITYSTR}" != x ]; then
-	      echo -en "\e]1;"
-	      echo -n "${_BSA_ITYSTR}"
-	      echo -en "\a"
+	      echo -en "\e]1;" >/dev/tty
+	      echo -n "${_BSA_ITYSTR}" >/dev/tty
+	      echo -en "\a" >/dev/tty
 	      _dids=
 	    fi
 	    fi # FPTN
@@ -1429,6 +1429,16 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	    unsetopt correctall
     fi # _quietyinz
   }
+  __bsa_isrealcmd() {
+      case "x$1" in
+	  xreturn* | x_BSA_INPPT* | x__bsa_isrealcmd* | x_my_ppt* | x__BSA_DEBUG*)
+	      return 1
+	      ;;
+	  *)
+	      return 0
+	      ;;
+      esac
+  }
   preexec() {
     if [[ "0$_quietyinz" = 01 ]]; then
       :
@@ -1436,19 +1446,20 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	    typeset _b _s _t
 	    if [ "x$_BSA_DOPROMPT" = x1 ] &&
 	       [ "x$_BSA_STYSTR" != x ] &&
+	       __bsa_isrealcmd "$2" &&
 	       [ "x$STY" != x ]; then
 	      _s="$_BSA_STYSTR"
-	      echo -en "\ek"
+	      echo -en "\ek" >/dev/tty
 	      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-	      echo -n "${_t%% *}"
-	      echo -en "\e\\"
+	      echo -n "${_t%% *}" >/dev/tty
+	      echo -en "\e\\" >/dev/tty
 	    fi
-	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_ITYSTR" != x ]; then
+	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_ITYSTR" != x ] && __bsa_isrealcmd "$2"; then
 	      _s="$_BSA_ITYSTR"
-	      echo -en "\e]1;"
+	      echo -en "\e]1;" >/dev/tty
 	      _t="$(echo "$2" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-	      echo -n "$_s [${_t%% *}]"
-	      echo -en "\a"
+	      echo -n "$_s [${_t%% *}]" >/dev/tty
+	      echo -en "\a" >/dev/tty
 	    fi
 	    if false; then
 	    if [ "x$_BSA_DOPROMPT" = x1 ] && [ "x$_BSA_TTYSTR" != x ]; then
@@ -1459,13 +1470,13 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	      fi
 	      # ick
 	      if [ "x$STY" = x ]; then
-	        echo -en "\e]2;"
+	        echo -en "\e]2;" >/dev/tty
 	      else
-	        echo -en "\e]0;"
+	        echo -en "\e]0;" >/dev/tty
 	      fi
-	      print -P -n "[%D{%m/%d-%H:%M}] ${_s}: "
-	      echo -n "${(j:; :V)${(f)2}}"
-	      echo -en "\a"
+	      print -P -n "[%D{%m/%d-%H:%M}] ${_s}: " >/dev/tty
+	      echo -n "${(j:; :V)${(f)2}}" >/dev/tty
+	      echo -en "\a" >/dev/tty
 	    fi
 	    fi
 	    _BSA_INPPT=
@@ -1480,15 +1491,17 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
   else
       __BSA_DEBUG() {
 	  if [ "x$_BSA_INPPT" = "x" ] &&
+	     __bsa_isrealcmd "$ZSH_DEBUG_CMD" &&
 	     [ "x$_BSA_DOPROMPT" = x1 ] &&
 	     [ "x$_BSA_ITYSTR" != x ]; then
 	  _s="$_BSA_ITYSTR"
-	  echo -en "\e]1;"
+	  echo -en "\e]1;" >/dev/tty
 	  _t="$(echo "$ZSH_DEBUG_CMD" | sed 's/^_my_ssh\( -.[^ ]*\)* //')"
-	  echo -n "$_s [${_t%% *}]"
-	  echo -en "\a"
+	  echo -n "$_s [${_t%% *}]" >/dev/tty
+	  echo -en "\a" >/dev/tty
 	fi
     if [ "x$_BSA_INPPT" = x ] &&
+       __bsa_isrealcmd "$2" &&
        [ "x$_BSA_DOPROMPT" = x1 ] &&
        [ "x$_BSA_TTYSTR" != x ]; then
 	      typeset _p _s
@@ -1499,13 +1512,13 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
 	      fi
 	      # ick
 	      if [ "x$STY" = x ]; then
-	        echo -en "\e]2;"
+	        echo -en "\e]2;" >/dev/tty
 	      else
-	        echo -en "\e]0;"
+	        echo -en "\e]0;" >/dev/tty
 	      fi
-	      print -P -n "[%D{%m/%d-%H:%M}]${_p} ${_s}: "
-	      echo -n "${(j:; :V)${(f)2}}"
-	      echo -en "\a"
+	      print -P -n "[%D{%m/%d-%H:%M}]${_p} ${_s}: " >/dev/tty
+	      echo -n "${(j:; :V)${(f)2}}" >/dev/tty
+	      echo -en "\a" >/dev/tty
 	    fi
       }
       trap __BSA_DEBUG DEBUG
