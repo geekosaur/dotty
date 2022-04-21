@@ -1543,7 +1543,7 @@ gc() {
 # @@@ shell-safe this
 # @@@@ also, unbreak... $p wants globbing
 eval 'girc() {
-        local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/ZNC\ \[ttuttle\ ds\]\ -\ FreeNode/$p.log
+        local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/libera.chat/$p.log
       }'
 
 fi
