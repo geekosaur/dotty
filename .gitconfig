@@ -1,5 +1,8 @@
 [user]
 	email = allbery.b@gmail.com
 	name = brandon s allbery kf8nh
+	signingkey = 227EE1942B0BDB95
 [push]
 	default = simple
+[commit]
+	gpgsign = true

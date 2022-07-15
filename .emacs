@@ -36,7 +36,7 @@
    (quote
     (("gnu" . "http://elpa.gnu.org/packages/")
      ("melpa-stable" . "http://stable.melpa.org/packages/"))))
- '(package-selected-packages (quote (haskell-mode)))
+ '(package-selected-packages (quote (discover yafolding haskell-mode)))
  '(partial-completion-mode t)
  '(save-place t nil (saveplace))
  '(scalable-fonts-allowed t)
@@ -83,6 +83,9 @@
 ; this is probably beyond evil
 (require 'cperl-mode)
 (fset 'perl-mode (symbol-function 'cperl-mode))
+
+(require 'yafolding)
+(add-hook 'text-mode-hook 'yafolding-mode)
 
 ;; these are *nice*
 ;; (will be nicer when I get around to combining them properly)
