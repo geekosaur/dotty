@@ -99,3 +99,4 @@
 	      auto-mode-alist))
 
 (server-start)
+(put 'scroll-left 'disabled nil)
