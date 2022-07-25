@@ -1086,7 +1086,7 @@ fi
 
 # cd wrapper to fix prompt
 if [ "x$ZSH_NAME" = x ]; then
-    function _my_cd {
+    _my_cd() {
 	if cd "$@"; then
 	    _my_ppt -q
 	    return 0
