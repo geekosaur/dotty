@@ -1,2 +1,5 @@
 *~
 .*.swp
+
+# crawl scripts have passwords so come from my key
+.bin/c*
