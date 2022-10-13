@@ -23,7 +23,7 @@ ENV=$HOME/.bashrc export ENV
 #*/.bin/@* | */opt/local/*) ;;
 #*)
 nPATH="$HOME/.ghcup/bin:$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:"
-nPATH="$nPATH:$HOME/.cabal/bin:"
+nPATH="$nPATH:$HOME/.cabal/bin:$HOME/.local/bin:"
 nPATH="$nPATH:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:"
 nPATH="$nPATH:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:"
 nPATH="$nPATH:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:"
@@ -60,7 +60,7 @@ for dir in $nPATH; do
 done
 IFS="$oIFS"
 test -n "$npath" && PATH="$npath"
-unset npath nPATH
+eval 'unset npath nPATH'
 # hgu
 MANPATH=
 INFOPATH=
@@ -128,4 +128,5 @@ export GIT_EDITOR VISUAL
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
 fi
+eval 'unset oIFS'
 _BSA_INPPT=
