@@ -128,5 +128,7 @@ export GIT_EDITOR VISUAL
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
 fi
+GHCUP_USE_XDG_DIRS=y
+export GHCUP_USE_XDG_DIRS
 eval 'unset oIFS'
 _BSA_INPPT=
