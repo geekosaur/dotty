@@ -1120,6 +1120,24 @@ else
 fi
 alias git=_my_git
 
+# gh wrapper to regen prompt. runs more often than needed but oh well
+if [ "x$ZSH_NAME" = x ]; then
+    function _my_gh {
+	if gh "$@"; then
+	    _my_ppt -q
+	    return 0
+	fi
+    }
+else
+    function _my_gh {
+	if gh "${(@)*}"; then
+	    _my_ppt -q
+	    return 0
+	fi
+    }
+fi
+alias gh=_my_gh
+
 # patch wrapper to regen prompt, in case we're in a git repo
 if [ "x$ZSH_NAME" = x ]; then
     function _my_patch {
@@ -1543,7 +1561,7 @@ gc() {
 # @@@ shell-safe this
 # @@@@ also, unbreak... $p wants globbing
 eval 'girc() {
-        local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/libera.chat/$p.log
+        local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/*/$p.log
       }'
 
 fi

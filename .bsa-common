@@ -23,7 +23,7 @@ ENV=$HOME/.bashrc export ENV
 #*/.bin/@* | */opt/local/*) ;;
 #*)
 nPATH="$HOME/.ghcup/bin:$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:"
-nPATH="$nPATH:$HOME/.cabal/bin:$HOME/.local/bin:"
+nPATH="$nPATH:$HOME/.cabal/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin:/usr/local/go/bin:"
 nPATH="$nPATH:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:"
 nPATH="$nPATH:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:"
 nPATH="$nPATH:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:"
@@ -107,7 +107,7 @@ else
     __my_pagsh=$SHELL
 fi
 export __my_pagsh
-if [ "x$BASH" != "x" -a -f .bashrc ]; then . .bashrc; fi
+if [ "x$BASH" != "x" -a -f ./.bashrc ]; then . ./.bashrc; fi
 # @@@@ default needs to be pathified
 # @@@@ this doesn't work in ksh!
 if test -f /opt/local/bin/nvi; then
@@ -121,10 +121,9 @@ elif test -f /usr/bin/vi; then
 elif test -f /usr/ucb/vi; then
     EDITOR=/usr/ucb/vi
 fi
-export EDITOR
 GIT_EDITOR="$EDITOR"
 VISUAL="$EDITOR"
-export GIT_EDITOR VISUAL
+export EDITOR GIT_EDITOR VISUAL
 if test -f $HOME/.rakudobrew/bin/rakudobrew; then
     eval "$($HOME/.rakudobrew/bin/rakudobrew init -)"
 fi

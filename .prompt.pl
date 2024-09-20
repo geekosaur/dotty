@@ -219,6 +219,7 @@ $sh = ($bash ne 'x' ? 'B' : $zsh ne 'x' ? 'Z' : 'B') . ($> ? '$' : '#');
 $cmd = '';
 $git = '';
 $cmt = '';
+my $gb1;
 my $gb = `git branch --no-color --list -vv 2>/dev/null`;
 if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   # note untracked branches with ?, detached with &
@@ -308,9 +309,16 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
   if ($cmt ne '') {
     $cmt = '@' . $cmt;
   }
+  $gs = `git stash list`;
+  (my $gb1 = $gb) =~ s/[^ -~]+$//;
+  if ($gs =~ /^stash\@\{\d+\}: (?:WIP o|O)n ([^:]+): /m && $1 eq $gb1) {
+    $cmt .= c($C_YELLOW|$C_HI, undef, '$');
+  }
+  elsif ($gs !~ /^$/m) {
+    $cmt .= c($C_YELLOW, undef, '$');
+  }
   $git = " «$ddd$gb$cmt»";
 }
-#{my $v = $git; $v =~ s/\033/ɮ/g; print STDERR "$v\n";}
 ## cabal/stack sandboxes?
 my @cbl = <*.cabal>;
 if (@cbl == 1) {
