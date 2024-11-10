@@ -1,2 +1,3 @@
-Sxiv*foreground: black
-Sxiv*background: white
+sxiv*foreground: black
+sxiv*background: white
+Xft.dpi: 144

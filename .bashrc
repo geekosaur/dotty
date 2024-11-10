@@ -48,6 +48,11 @@ set:*)
     unset XAUTHORITY DISPLAY SSH_TTY SSH_CONNECTION SSH_CLIENT _BSA_SH_LEVEL
     ;;
 esac
+# ubuntu 24.04 doesn't do this automatically any more
+if [ "x$ZSH_NAME" != x ]; then
+    autoload compinit
+    compinit
+fi
 #
 # This horrendous kludge needs some explanation.  :-)
 #
