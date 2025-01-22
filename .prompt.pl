@@ -37,12 +37,6 @@ my ($bash, $zsh, $iskrb, $krb, $isafs, $afs, $lvl, $scrn, $host, $dom);
 my ($cell, $tty, $uid, $eid, $kp, $ktkt, $atkt, $sh, $cmd, $git);
 my ($d, $sys, $sn, $icon, $cmt, $q);
 my (%hd, %un);
-{
-open(DBG, '>/tmp/zxzxzx');
-local($") = '><';
-print DBG "<@ARGV>\n";
-close(DBG);
-}
 $q = 0;
 if ($ARGV[0] eq '-q') {
   $q = 1;

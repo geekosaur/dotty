@@ -1248,7 +1248,19 @@ case "x$-/$TERM" in
 	    eval "$(/usr/bin/perl $HOME/.prompt.pl $_p x$BASH x$ZSH_NAME $krb x$_my_klist x$afs "x$_my_tokens" $(dirs))"
 	    _BSA_INPPT=${_BSA_INPPT/1}
 	}
+    elif type /usr/local/bin/perl > /dev/null 2>&1; then
+	function _my_ppt {
+	    _BSA_INPPT=${_BSA_INPPT}1
+	    typeset _p
+	    # may go away, FPTN hack may be fixed
+	    if [ "x$1" = x-q ]; then
+		_p=-q
+	    fi
+	    eval "$(/usr/local/bin/perl $HOME/.prompt.pl $_p x$BASH x$ZSH_NAME $krb x$_my_klist x$afs "x$_my_tokens" $(dirs))"
+	    _BSA_INPPT=${_BSA_INPPT/1}
+	}
     else
+	# NB. this is buggy but so far everything supports perl
 	unset _BSA_TTYSTR
 	function _my_ppt {
 	    _BSA_INPPT=${_BSA_INPPT}1
