@@ -11,6 +11,8 @@ include "%L"
 <Multi_key> <bracketleft> <bracketleft> : "⟦"
 <Multi_key> <bracketright> <bracketright> : "⟧"
 
+<Multi_key> <o> <period> : "∘"  U2218
+
 # Custom additions: Greek letters.  Mapping corresponds to Emacs Greek
 # input method.  Aristotle Pagaltzis informs me that this is the
 # standard Greek keyboard layout, which is good.

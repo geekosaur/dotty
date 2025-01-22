@@ -130,4 +130,6 @@ fi
 GHCUP_USE_XDG_DIRS=y
 export GHCUP_USE_XDG_DIRS
 eval 'unset oIFS'
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 _BSA_INPPT=

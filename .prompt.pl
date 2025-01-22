@@ -37,6 +37,12 @@ my ($bash, $zsh, $iskrb, $krb, $isafs, $afs, $lvl, $scrn, $host, $dom);
 my ($cell, $tty, $uid, $eid, $kp, $ktkt, $atkt, $sh, $cmd, $git);
 my ($d, $sys, $sn, $icon, $cmt, $q);
 my (%hd, %un);
+{
+open(DBG, '>/tmp/zxzxzx');
+local($") = '><';
+print DBG "<@ARGV>\n";
+close(DBG);
+}
 $q = 0;
 if ($ARGV[0] eq '-q') {
   $q = 1;
@@ -279,7 +285,7 @@ if (defined $gb and $gb ne '' and $gb =~ s/(?:.*\n)?\* ([^\n]+).*/$1/s) {
     if ($gs =~ / behind '(?:[^']+)' by (\d+) commits?/) {
       $ddd .= c($C_WHITE|$C_HI, $C_RED, "₋$1");
       if ($gs !~ /can be fast-forwarded/) {
-	$ddd =~ s/₋/c($C_YELLOW|$C_HI, $C_MAGENTA, '↛')/e;
+	      $ddd =~ s/₋/c($C_YELLOW|$C_HI, $C_MAGENTA, '↛')/e;
       }
     }
   }

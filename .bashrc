@@ -1559,7 +1559,7 @@ else
 eval 'fignore=(.hi)'
 alias pbcopy='xclip -in -selection CLIPBOARD'
 alias pbpaste='xclip -out -selection CLIPBOARD'
-alias nix='. /home/allbery/.nix-profile/etc/profile.d/nix.sh; psys "nix${_BSA_PSYS++$_BSA_PSYS}"'
+alias nix='. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh; psys "nix${_BSA_PSYS++$_BSA_PSYS}"'
 gc() {
     grep -ri "$*" . | grep -Ev '(~:|(^| )\./\.git/)'
 }
