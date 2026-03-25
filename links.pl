@@ -28,7 +28,7 @@ EOF
   exit 0;
 }
 
-my $count = process(!defined $dry_run || !$dry_run, $force, $verbose);
+my $count = process(!defined $dry_run || $dry_run, $force, $verbose);
 # @@@ scan for dangling removed repo files?
 if ($count != 0 && !defined $dry_run) {
   print "Pass --link to perform these actions.\n";
@@ -107,6 +107,7 @@ FILE:
       $count++;
     }
   }
+  $count;
 }
 
 # check if an existing symlink is ours / managed
