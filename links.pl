@@ -2,74 +2,20 @@
 use strict;
 use warnings;
 
+use Getopt::Long;
 use Cwd qw(abs_path);
 
-process($#ARGV);
+my ($dry_run, $force, $verbose) = (0, 0, 0);
+
+GetOptions('dry-run!' => \$dry_run,
+           'force!' => \$force,
+           'verbose!' => \$verbose) or die;
+
+process($dry_run, $force, $verbose);
 # @@@ scan for dangling removed repo files?
 exit 0;
 
-# yes, this is disgustingly quick and dirty
-chomp(my $dir = `pwd`);
-if (substr($dir, 0, length($ENV{HOME}) + 1) eq "$ENV{HOME}/") {
-  substr($dir, 0, length($ENV{HOME}) + 1, '');
-}
-$dir .= '/';
-print "repo = $dir\nhome = $ENV{HOME}\n";
-my ($d, $f);
-print "scan for additions\n";
-opendir $d, '.' or die "where am i?";
-FILE:
-while (defined ($f = readdir $d)) {
-  for (qw(. .. .git .gitignore links.pl LICENSE README.md)) {
-    next FILE if $_ eq $f;
-  }
-  next FILE if $f =~ /^\.#/ || $f =~ /(~|\.swp)$/; # editor temp files
-  if (! -e "$ENV{HOME}/$f") {
-    if (@ARGV) {
-      warn "symlink $f\n";
-      symlink "$dir/$f", "$ENV{HOME}/$f" or die "symlink: $!";
-    } else {
-      print "would symlink $f\n";
-    }
-  }
-}
-closedir $d;
-my $l;
-print "scan for removals\n";
-opendir $d, $ENV{HOME} or die "where are you?";
-OLD:
-while (defined ($f = readdir $d)) {
-  next OLD if $f eq '.' or $f eq '..';
-  if (defined ($l = readlink("$ENV{HOME}/$f")) &&
-      # @@@ wrong if it's not followed by EOT or '/'!
-      substr($l, 0, length($dir)) eq $dir) {
-    next OLD if -e $f;
-    if (@ARGV) {
-      warn "remove $f symlink\n";
-      unlink "$ENV{HOME}/$f" or die "unlink: $!";
-    } else {
-      print "would unlink $f\n";
-    }
-  }
-  elsif (-e $f) {
-    if (@ARGV == 1 && $ARGV[0] eq 'FORCE') {
-      (my $bf = $f) =~ s/^\.//;
-      $bf .= ".orig";
-      if (-e "$ENV{HOME}/$bf") {
-        die "can't back up $f to $bf";
-      }
-      warn "managing $f; backup at $ENV{HOME}/$bf\n";
-      rename "$ENV{HOME}/$f", "$ENV{HOME}/$bf" or die "rename: $!";
-      symlink "$dir$f", "$ENV{HOME}/$f" or die "symlink: $!";
-    } else {
-      print "$f is unmanaged\n";
-    }
-  }
-}
-
-# note that the old version had a somewhat confused notion of some
-# invariant that it probably violated.
-# this one is idempotent to the extent that running it twice (say,
+# this is idempotent to the extent that running it twice (say,
 # to deal with an unmanaged file / dir) won't cause problems.
 # but if something managed was removed from the repo, nothing can be
 # done here; it's too late to save it, and we key off the repo so
@@ -77,9 +23,8 @@ while (defined ($f = readdir $d)) {
 # into the repo would be needed, and all we could do in that case
 # would be to warn that something vanished the last time a "git pull"
 # on the repo was done.
-# @@@ should return errors
 sub process {
-  my ($doit, $whereami, $dir, $depth, $dots) = @_;
+  my ($dry, $force, $verbose, $whereami, $dir, $depth, $dots) = @_;
   $depth //= 0;
   if ($depth == 0) {
     die "not run in dotty dir" unless -d '.git' && -f 'links.pl'; 
@@ -87,11 +32,11 @@ sub process {
     # $whereami is current location under . (and target under $ENV{HOME})
     $whereami = '.';
     $dots = '';
-    ($dir = abs_path('.')) =~ s,^$ENV{HOME}/,,;
+    ($dir = abs_path('.')) =~ s,^$ENV{HOME}/,, or
+      die "repo must be under \$HOME for symlinks to work, sorry\n";
   }
   my $dots1 = $dots;
   $dots1 eq '' or $dots1 .= '/';
-  # recurse on dirs, preserve symlinks, symlink files with backup
   my ($dh, $f, $mf);
   (my $whereami1 = $whereami) =~ s,^./,,;
   if ($whereami1 eq '.') {
@@ -99,18 +44,20 @@ sub process {
   } else {
     $whereami1 .= '/';
   }
+  # recurse on dirs, preserve symlinks, symlink files with backup
   opendir $dh, $whereami or die "opendir $whereami: $!";
 FILE:
   while (defined ($f = readdir $dh)) {
     if (!$depth) {
       for my $ign (qw(.git .gitignore .gitconfig links.pl LICENSE README.md)) {
+        # @@@ should $verbose report these?
         next FILE if $ign eq $f;
       }
     }
     next if $f eq '.' || $f eq '..' || $f =~ /^\.#/ || $f =~ /(~|\.swp)$/;
     # directory
     if (! -l "$whereami/$f" && -d _ && ! -f "$whereami/$f/.symlink") {
-      process($doit, "$whereami/$f", $dir, $depth + 1, $dots eq '' ? '..' : "$dots/..");
+      process($dry, $force, $verbose, "$whereami/$f", $dir, $depth + 1, $dots eq '' ? '..' : "$dots/..");
     }
     # not regular file, symlink, or directory with .symlink
     # .symlink will have broken stat chain, so re-stat
@@ -118,16 +65,16 @@ FILE:
       warn "can't manage special file $whereami/$f\n";
     }
     elsif (defined ($mf = ours("$whereami/$f", $dir)) && $mf) {
-      warn "$whereami/$f already managed\n";
+      $verbose and warn "$whereami/$f already managed\n";
     }
     # exists, unmanaged
     elsif (defined $mf && !$mf) {
-      # 1. should there be a --force?
+      # 1. should there be a --force? (is now, NYI)
       # 2. should we backup/move away and continue?
       warn "$whereami/$f already exists, skipping\n"; # @@@
     }
     # new; symlink into repo
-    elsif (!$doit) {
+    elsif ($dry) {
       warn "would symlink($dots1$dir/$whereami1$f, $ENV{HOME}/$whereami1$f)\n";
     }
     else {
