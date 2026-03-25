@@ -5,14 +5,34 @@ use warnings;
 use Getopt::Long;
 use Cwd qw(abs_path);
 
-my ($dry_run, $force, $verbose) = (0, 0, 0);
+my ($dry_run, $force, $verbose, $help) = (undef, 0, 0, 0);
 
-GetOptions('dry-run!' => \$dry_run,
-           'force!' => \$force,
-           'verbose!' => \$verbose) or die;
+GetOptions('dry-run|d' => sub { $dry_run = 1 },
+           'link|l' => sub { $dry_run = 0 },
+           'force|F!' => \$force,
+           'verbose|v!' => \$verbose,
+           'help|h' => \$help) or die;
 
-process($dry_run, $force, $verbose);
+if ($help) {
+  print <<EOF;
+usage: perl links.pl [OPTION …]
+
+-d, --dry-run      print what it would do instead of doing it
+-l, --link         actually make links
+-v, --verbose      report already managed files
+-F, --force        replace existing files (NYI)
+
+The default behavior is --dry-run, telling you to add --link to
+actually make the links if any were needed.
+EOF
+  exit 0;
+}
+
+my $count = process(!defined $dry_run || !$dry_run, $force, $verbose);
 # @@@ scan for dangling removed repo files?
+if ($count == 0 && !defined $dry_run) {
+  print "Pass --link to perform these actions.\n";
+}
 exit 0;
 
 # this is idempotent to the extent that running it twice (say,
@@ -35,6 +55,7 @@ sub process {
     ($dir = abs_path('.')) =~ s,^$ENV{HOME}/,, or
       die "repo must be under \$HOME for symlinks to work, sorry\n";
   }
+  my $count = 0;
   my $dots1 = $dots;
   $dots1 eq '' or $dots1 .= '/';
   my ($dh, $f, $mf);
@@ -48,7 +69,7 @@ sub process {
   opendir $dh, $whereami or die "opendir $whereami: $!";
 FILE:
   while (defined ($f = readdir $dh)) {
-    if (!$depth) {
+    if ($depth == 0) {
       for my $ign (qw(.git .gitignore .gitconfig links.pl LICENSE README.md)) {
         # @@@ should $verbose report these?
         next FILE if $ign eq $f;
@@ -57,7 +78,7 @@ FILE:
     next if $f eq '.' || $f eq '..' || $f =~ /^\.#/ || $f =~ /(~|\.swp)$/;
     # directory
     if (! -l "$whereami/$f" && -d _ && ! -f "$whereami/$f/.symlink") {
-      process($dry, $force, $verbose, "$whereami/$f", $dir, $depth + 1, $dots eq '' ? '..' : "$dots/..");
+      $count += process($dry, $force, $verbose, "$whereami/$f", $dir, $depth + 1, $dots eq '' ? '..' : "$dots/..");
     }
     # not regular file, symlink, or directory with .symlink
     # .symlink will have broken stat chain, so re-stat
@@ -65,22 +86,25 @@ FILE:
       warn "can't manage special file $whereami/$f\n";
     }
     elsif (defined ($mf = ours("$whereami/$f", $dir)) && $mf) {
-      $verbose and warn "$whereami/$f already managed\n";
+      $verbose and print "$whereami/$f already managed\n";
     }
     # exists, unmanaged
     elsif (defined $mf && !$mf) {
       # 1. should there be a --force? (is now, NYI)
       # 2. should we backup/move away and continue?
-      warn "$whereami/$f already exists, skipping\n"; # @@@
+      print "$whereami/$f already exists unmanaged, skipping\n"; # @@@
     }
     # new; symlink into repo
     elsif ($dry) {
-      warn "would symlink($dots1$dir/$whereami1$f, $ENV{HOME}/$whereami1$f)\n";
+      print "would symlink($dots1$dir/$whereami1$f, $ENV{HOME}/$whereami1$f)\n";
+      $count++;
     }
     else {
-      warn "managing $whereami1$f\n";
+      print "managing $whereami1$f\n";
       symlink "$dots1$dir/$whereami1$f", "$ENV{HOME}/$whereami1$f" or
         die "symlink $ENV{HOME}/$whereami1$f: $!";
+      # @@@ not actually useful since it's only checked in default dry run
+      $count++;
     }
   }
 }
