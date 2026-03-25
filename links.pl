@@ -30,7 +30,7 @@ EOF
 
 my $count = process(!defined $dry_run || !$dry_run, $force, $verbose);
 # @@@ scan for dangling removed repo files?
-if ($count == 0 && !defined $dry_run) {
+if ($count != 0 && !defined $dry_run) {
   print "Pass --link to perform these actions.\n";
 }
 exit 0;
