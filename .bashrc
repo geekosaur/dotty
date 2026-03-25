@@ -32,7 +32,7 @@ x*i*)
     fi
     # quick hack so zsh doesn't screw us later
     if [ "x$ZSH_NAME" != x ]; then
-	setopt shwordsplit
+	setopt shwordsplit completealiases
     fi
     ;;
 esac
@@ -894,7 +894,7 @@ for cmd in rlogin telnet pagsh; do
 done
 
 # wrapper for commands which aren't auth-specific but do thwack prompt
-for cmd in trn vi vim nvi; do
+for cmd in trn vi vim nvi nvim; do
     pth=$(pathto $cmd)
     if [ x$pth != x ]; then
 	eval "_my_${cmd}_cmd=\$pth
@@ -926,8 +926,11 @@ for cmd in ssh sudo; do
 done
 unset cmd
 
-if type nvi >/dev/null 2>&1; then
-    alias vi=nvi
+# prefer nvim for vi, whee
+if [ "x$_my_nvim_cmd" != x ]; then
+	_my_vi_cmd="$_my_nvim_cmd"
+elif [ "x$_my_nvi_cmd" != x]; then
+	_my_vi_cmd="$_my_nvi_cmd"
 fi
 
 # add a label to the prompt
@@ -1008,7 +1011,7 @@ else
 	typeset -i __c __d
 
 	# popd		- pop into topmost directory
-	# popd +n		- pop into Nth directory
+	# popd +n	- pop into Nth directory
 	if [ $# = 0 ]; then
 	    __c=0
 	elif [ $# -gt 1 ]; then
@@ -1206,7 +1209,7 @@ elif (command echo) >/dev/null 2>&1; then
 	return $?
     }
 else
-    # this one might fail.  other suggestions?
+    # this one might fail. other suggestions?
     function _my_fg {
 	typeset rc
 	'fg' ${1+"$@"}
@@ -1435,7 +1438,7 @@ if expr "x$-" : ".*i" >/dev/null && [ "x$ZSH_NAME" != x ]; then
   	      fi
 	      echo -en "\e]2;" >/dev/tty
 	      else
-		      # @@@ hack for Terminal.app:  current directory
+		      # @@@ hack for Terminal.app: current directory
 		      # (see /etc/bashrc)
 		      if [ "x$TERM_PROGRAM" = xApple_Terminal ] &&
 		         test -z "$INSIDE_EMACS"; then
@@ -1571,14 +1574,17 @@ else
 eval 'fignore=(.hi)'
 alias pbcopy='xclip -in -selection CLIPBOARD'
 alias pbpaste='xclip -out -selection CLIPBOARD'
-alias nix='. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh; psys "nix${_BSA_PSYS++$_BSA_PSYS}"'
+alias gonix='. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh; psys "nix${_BSA_PSYS++$_BSA_PSYS}"'
 gc() {
     grep -ri "$*" . | grep -Ev '(~:|(^| )\./\.git/)'
 }
 # @@@ shell-safe this
 # @@@@ also, unbreak... $p wants globbing
 eval 'girc() {
-        local p; p="$1"; shift; grep "$@" ~/.config/hexchat/logs/*/$p.log
+        local p
+        p="$1"
+        shift
+        grep "$@" ~/.config/hexchat/logs/*/$p.log ~/.local/share/konversation/logs/*_$p.log
       }'
 
 fi

@@ -21,7 +21,6 @@ repository hackage.haskell.org
 
 -- ignore-expiry: False
 -- http-transport:
-nix: disable
 -- store-dir:
 -- active-repositories:
 -- local-no-index-repo:
@@ -110,7 +109,7 @@ remote-build-reporting: none
 -- report-planning-failure: False
 -- per-component: True
 -- run-tests:
-jobs: 6
+jobs: 12
 -- keep-going: False
 -- offline: False
 -- lib: False
@@ -118,10 +117,9 @@ jobs: 6
 overwrite-policy: always
 install-method: copy
 installdir: /home/allbery/.local/bin
--- username:
--- password:
+username: geekosaur
+password: beb7jgq-nqe-GXK1reu
 -- password-command:
--- builddir:
 
 haddock
   -- keep-temp-files: False

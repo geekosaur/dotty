@@ -22,15 +22,16 @@ ENV=$HOME/.bashrc export ENV
 #case "x$PATH" in
 #*/.bin/@* | */opt/local/*) ;;
 #*)
-nPATH="$HOME/.ghcup/bin:$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin:"
-nPATH="$nPATH:$HOME/.cabal/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin:/usr/local/go/bin:"
-nPATH="$nPATH:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin:"
-nPATH="$nPATH:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin:"
-nPATH="$nPATH:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin:"
-nPATH="$nPATH:/usr/X11R6/bin:/usr/dt/bin:/usr/openwin/demo:/usr/andy/etc:/usr/afs/etc:"
-nPATH="$nPATH:/usr/afsws/etc:/usr/andy/bin:/usr/afs/bin:/usr/afsws/bin:/usr/arla/bin:"
-nPATH="$nPATH:/opt/SUNWdat/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/X11/bin:/usr/motif/bin:"
-nPATH="$nPATH:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/bin:$PATH:/usr/games:"
+nPATH="$HOME/.ghcup/bin:$HOME/.bin/common:$HOME/.bin/@sys:$HOME/.bin:$HOME/bin"
+nPATH="$nPATH:$HOME/.cabal/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/go/bin:/usr/local/go/bin"
+nPATH="$nPATH:/opt/nvim-linux-x86_64/bin"
+nPATH="$nPATH:/Library/OpenAFS/Tools/etc:/Library/OpenAFS/Tools/bin:/usr/heimdal/sbin"
+nPATH="$nPATH:/usr/athena/bin:/usr/heimdal/bin:/usr/local/bin:/opt/hp/bin:/sw/bin"
+nPATH="$nPATH:/sw/sbin:/opt/local/bin:/opt/local/sbin:/opt/X11/bin:/usr/contributed/bin"
+nPATH="$nPATH:/usr/X11R6/bin:/usr/dt/bin:/usr/openwin/demo:/usr/andy/etc:/usr/afs/etc"
+nPATH="$nPATH:/usr/afsws/etc:/usr/andy/bin:/usr/afs/bin:/usr/afsws/bin:/usr/arla/bin"
+nPATH="$nPATH:/opt/SUNWdat/bin:/usr/bin/X11:/usr/X11R6/bin:/usr/X11/bin:/usr/motif/bin"
+nPATH="$nPATH:/opt/SUNWspro/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/bin:$PATH:/usr/games"
 nPATH="$nPATH:/usr/local/sbin:/usr/local/gnome/bin:/usr/sbin:/sbin:/usr/bin:/bin:/snap/bin"
 #;;
 #esac
@@ -110,7 +111,10 @@ export __my_pagsh
 if [ "x$BASH" != "x" -a -f ./.bashrc ]; then . ./.bashrc; fi
 # @@@@ default needs to be pathified
 # @@@@ this doesn't work in ksh!
-if test -f /opt/local/bin/nvi; then
+# @@@@ .bashrc should reuse this in its "vi" alias
+if test -f /opt/nvim-`uname -o | sed 's,^GNU/,,' | tr A-Z a-z`-`uname -m`/bin/nvim; then
+    EDITOR=/opt/nvim-`uname -o | sed 's,^GNU/,,' | tr A-Z a-z`-`uname -m`/bin/nvim
+elif test -f /opt/local/bin/nvi; then
     EDITOR=/opt/local/bin/nvi
 elif test -f /usr/local/bin/nvi; then
     EDITOR=/usr/local/bin/nvi
