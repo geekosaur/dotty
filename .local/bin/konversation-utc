@@ -1,0 +1,5 @@
+
+#! /bin/sh
+TZ=UTC0
+export TZ
+exec /usr/bin/konversation ${1+"$@"}

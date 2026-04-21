@@ -1,0 +1,4 @@
+#! /bin/sh
+TZ=UTC0
+export TZ
+exec /usr/bin/hexchat ${1+"$@"}

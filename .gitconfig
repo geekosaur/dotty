@@ -1,0 +1,14 @@
+[user]
+	email = allbery.b@gmail.com
+	name = brandon s allbery kf8nh
+	signingkey = 227EE1942B0BDB95
+[push]
+	default = simple
+[commit]
+	gpgsign = true
+[protocol "file"]
+	allow = always
+[url "https://invent.kde.org/"]
+	insteadOf = kde:
+[url "ssh://git@invent.kde.org/"]
+	pushInsteadOf = kde:

@@ -1,0 +1,13 @@
+#! /bin/sh
+cur=$(awk '/^#/ {next} {ip = $1; $1 = ""} /[ \t]kf8nh.com($|[ \t])/ {print ip}' /etc/hosts)
+old=$(host kf8nh.com | awk '$1 == "kf8nh.com" && $2 == "has" && $3 == "address" {print $4}')
+if [ "$cur" \!= "$old" ]; then
+    echo "kf8nh.com DNS wasn't updated! hosts $cur DNS $old" >&2
+    exit 1
+fi
+# now determine actual address and make sure it matches
+new=$(curl -s -S https://ipinfo.io/ip)
+if [ "$cur" \!= "$new" ]; then
+    echo "dynamic address changed! new $new kf8nh.com $old" >&2
+    exit 1
+fi
