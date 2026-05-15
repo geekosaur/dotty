@@ -424,7 +424,8 @@ if (!defined($sn) or $sn eq 'Error detecting AFS') {
   $sn =~ s/.$/: /;
 }
 $icon = '';
-if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?colors?)?$/)) {
+if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?colors?)?$/) or
+             exists($ENV{WAYLAND_DISPLAY})) {
   if ($q) {
     open(TTY, '> /dev/null'); # ick
   }
