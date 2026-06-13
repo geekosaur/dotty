@@ -276,7 +276,7 @@ _my_klist=
 
 _ktype=unknown
 
-if [ "x${_BSA_NO_KRBAFS:+x}" = x ]; then
+if [ "x${_BSA_NO_KRBAFS:+x}" = y ]; then # this is obsolete
 
 case "x${_BSA_DO_KRBAFS:+i}$-" in
 *i*)
