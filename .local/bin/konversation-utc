@@ -2,4 +2,7 @@
 #! /bin/sh
 TZ=UTC0
 export TZ
+# temporary
+QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME
 exec /usr/bin/konversation ${1+"$@"}
