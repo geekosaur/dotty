@@ -53,6 +53,14 @@ if [ "x$ZSH_NAME" != x ]; then
     autoload compinit
     compinit
 fi
+# arch has the suse 6 bug: wipes $PATH after it's set
+case "x$PATH" in
+  */.local/bin:*)
+    ;;
+  *)
+    . "$HOME/.bsa-common"
+    ;;
+esac
 #
 # This horrendous kludge needs some explanation.  :-)
 #
