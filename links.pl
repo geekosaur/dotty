@@ -101,6 +101,8 @@ FILE:
     }
     else {
       print "managing $whereami1$f\n";
+      system "mkdir -p \"$ENV{HOME}/$whereami1\""
+	unless -d "$ENV{HOME}/$whereami1";
       symlink "$dots1$dir/$whereami1$f", "$ENV{HOME}/$whereami1$f" or
         die "symlink $ENV{HOME}/$whereami1$f: $!";
       # @@@ not actually useful since it's only checked in default dry run
