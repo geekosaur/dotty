@@ -213,7 +213,7 @@ if ($kp ne '') {
 }
 $uid = '' if $uid eq $NOMINE;
 $uid .= '@' if $uid ne '';
-$sh = ($bash ne 'x' ? 'B' : $zsh ne 'x' ? 'Z' : 'B') . ($> ? '$' : '#');
+$sh = ($bash ne 'x' ? 'B' : $zsh ne 'x' ? 'Z' : '') . ($> ? '$' : '#');
 # @@@ this is more or less useless any more
 #$cmd = $bash eq 'x' ? ':!' : ':\!';
 $cmd = '';
@@ -466,32 +466,33 @@ if ($scrn or (exists($ENV{DISPLAY}) and $ENV{TERM} =~ /(rxvt|term)([-_](\d+)?col
     $icon .= '/';
   }
   $icon .= $ENV{_BSA_PSYS} if exists $ENV{_BSA_PSYS} and $ENV{_BSA_PSYS} ne '';
-  # @@@ /run/motd.dynamic may indicate that package updates require rebooting 
+  # @@@ /run/motd.dynamic may indicate that package updates require rebooting
+  # @@@@ is this still true in 2026?
   if (!$scrn) {
     # icon
     print TTY "\033]1;", $icon, (exists $ENV{WINDOW} ? "[$ENV{WINDOW}]" : ''), "\007";
     # titlebar
-    #print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
-    print TTY "\033]2;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
-    #print TTY "\033]3;", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\007";
+    #print TTY "\033]0;", $sys, $sn, $uid, $host, stryp($git), $d, "\007";
+    print TTY "\033]2;", $sys, $sn, $uid, $host, stryp($git), $d, "\007";
+    #print TTY "\033]3;", $sys, $sn, $uid, $host, stryp($git), $d, "\007";
     # shell
-    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
-    print "_BSA_TTYSTR1=\047", $sys, $sn, $uid, $host, ' ', stryp($git), $d, "\047\n";
+    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, $git, $d, "\047\n";
+    print "_BSA_TTYSTR1=\047", $sys, $sn, $uid, $host, stryp($git), $d, "\047\n";
     print "_BSA_STYSTR=\047", $icon, "\047\n";
     print "_BSA_ITYSTR=\047", $icon, "\047\n";
   } else {
     # titlebar
     if (defined($ENV{TMUX}) and $ENV{TMUX} ne '') {
-	    print TTY "\033]0;", $sys, $sn, $uid, $host, ' ', $git, $d, "\007";
+	    print TTY "\033]0;", $sys, $sn, $uid, $host, $git, $d, "\007";
     } else {
-	    print TTY "\033]0;", $sys, $sn, $uid, $host, "[$ENV{WINDOW}] ", $git, $d, "\007";
+	    print TTY "\033]0;", $sys, $sn, $uid, $host, " [$ENV{WINDOW}]", $git, $d, "\007";
     }
     # window name
     print TTY "\033k", $icon, "\033\\";
     if (defined($ENV{TMUX}) and $ENV{TMUX} ne '') {
-	    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, ' ', $git, $d, "\047\n";
+	    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, $git, $d, "\047\n";
     } else {
-	    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, "[$ENV{WINDOW}] ", $git, $d, "\047\n";
+	    print "_BSA_TTYSTR=\047", $sys, $sn, $uid, $host, " [$ENV{WINDOW}]", $git, $d, "\047\n";
     }
     print "_BSA_STYSTR=\047", $icon, "\047\n";
     print "_BSA_ITYSTR=\047", $icon, "\047\n";
