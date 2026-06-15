@@ -245,6 +245,9 @@ vim.lsp.config('hls', {
 })
 vim.lsp.enable('hls')
 
+-- and C
+vim.lsp.enable('clangd')
+
 -- configure gitsigns
 require('gitsigns').setup({
   signs = {
