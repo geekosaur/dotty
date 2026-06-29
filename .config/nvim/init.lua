@@ -245,8 +245,11 @@ vim.lsp.config('hls', {
 })
 vim.lsp.enable('hls')
 
--- and C
+-- and some others
 vim.lsp.enable('clangd')
+vim.lsp.enable('shuck')
+-- lua would be nice but appears to suck for install; it doesn't even try to be packageable
+-- also python but apparently it's just as bad. do these people not think?
 
 -- configure gitsigns
 require('gitsigns').setup({

@@ -58,7 +58,7 @@ case "x$PATH" in
   */.local/bin:*)
     ;;
   *)
-    . "$HOME/.bsa-common"
+    #. "$HOME/.bsa-common"
     ;;
 esac
 #

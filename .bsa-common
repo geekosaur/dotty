@@ -114,6 +114,8 @@ if [ "x$BASH" != "x" -a -f ./.bashrc ]; then . ./.bashrc; fi
 # @@@@ .bashrc should reuse this in its "vi" alias
 if test -f /opt/nvim-`uname -o | sed 's,^GNU/,,' | tr A-Z a-z`-`uname -m`/bin/nvim; then
     EDITOR=/opt/nvim-`uname -o | sed 's,^GNU/,,' | tr A-Z a-z`-`uname -m`/bin/nvim
+elif test -f /usr/bin/nvim; then
+    EDITOR=/usr/bin/nvim
 elif test -f /opt/local/bin/nvi; then
     EDITOR=/opt/local/bin/nvi
 elif test -f /usr/local/bin/nvi; then
