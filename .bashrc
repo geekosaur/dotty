@@ -937,7 +937,7 @@ unset cmd
 # prefer nvim for vi, whee
 if [ "x$_my_nvim_cmd" != x ]; then
 	_my_vi_cmd="$_my_nvim_cmd"
-elif [ "x$_my_nvi_cmd" != x]; then
+elif [ "x$_my_nvi_cmd" != x ]; then
 	_my_vi_cmd="$_my_nvi_cmd"
 fi
 
