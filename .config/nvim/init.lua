@@ -176,7 +176,7 @@ ins_left {
 ins_left {
   -- Lsp server name .
   function()
-    local msg = 'None'
+    local msg = ''
     local buf_ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
     local clients = vim.lsp.get_clients()
     if next(clients) == nil then
@@ -185,12 +185,12 @@ ins_left {
     for _, client in ipairs(clients) do
       local filetypes = client.config.filetypes
       if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
-        return client.name
+        return ' LSP: ' .. client.name
       end
     end
     return msg
   end,
-  icon = ' LSP:',
+  icon = '',
   color = { fg = '#ffffff', gui = 'bold' },
 }
 
@@ -240,7 +240,6 @@ require('lualine').setup(config)
 
 -- HLS configuration
 vim.lsp.config('hls', {
-  -- cmd = { '/home/allbery/.local/bin/haskell-language-server-wrapper' },
   filetypes = { 'haskell', 'lhaskell', 'cabal' },
 })
 vim.lsp.enable('hls')

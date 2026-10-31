@@ -1,5 +1,5 @@
 [Aliases]
-AliasList=cmd /exec cmd,sayclip /exec sayclip,sysinfo /exec sysinfo,tinyurl /exec tinyurl,gauge /exec gauge,bug /exec bug,fortune /exec fortune,uptime /exec uptime,video /exec media video,audio /exec media audio,media /exec media,up /msg chanserv op %c,dn /mode %c -o %o
+AliasList=dn /mode %c -o %o,up /msg chanserv op %c,media /exec media,audio /exec media audio,video /exec media video,uptime /exec uptime,fortune /exec fortune,bug /exec bug,gauge /exec gauge,tinyurl /exec tinyurl,sysinfo /exec sysinfo,sayclip /exec sayclip,cmd /exec cmd
 
 [Appearance]
 AutoUserhost=true
@@ -49,7 +49,7 @@ Regex7=0
 Regex8=0
 Replace0=http://en.wikipedia.org/wiki/Special:Search?go=Go&search=%1#
 Replace1=https://bugs.kde.org/show_bug.cgi?id=%2#
-Replace2=☺#
+Replace2=😀#
 Replace3=😦#
 Replace4=😈#
 Replace5=☝#
@@ -205,7 +205,7 @@ Password=
 
 [ChannelOptionsDialog]
 Size=620,535
-SplitterSizes=225,190
+SplitterSizes=225,196
 
 [DCC Settings]
 IPv4FallbackIface=0
@@ -263,7 +263,9 @@ SaslAccount=
 ShowAwayMessage=false
 
 [Ignore List]
-Ignore0=Lycurgus!*@*,63
+Ignore0=benmallinckrodt!*,63
+Ignore1=Lycurgus!*@*,63
+Ignore2=voltage_!*,3
 
 [LauncherEntry]
 LauncherEntryCountUseHighlights=true
